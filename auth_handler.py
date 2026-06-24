@@ -33,7 +33,10 @@ def login(login_mode, base_url, user_id, headers, stbid, mac,
         return auth_dynamic.login_dynamic(
             base_url=base_url, user_id=user_id, headers=headers,
             stbid=stbid, mac=mac, ip=ip, des_key=des_key,
-            stb_type=stb_type, stb_version=stb_version, timeout=timeout
+            stb_type=stb_type, stb_version=stb_version,
+            software_version=software_version, area_id=area_id,
+            user_group_id=user_group_id, template_name=template_name,
+            timeout=timeout
         )
     else:
         raise ValueError(f"未知的登录模式: {login_mode}，只支持 'simple' 或 'dynamic'")

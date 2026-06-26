@@ -1,0 +1,2135 @@
+{
+  "tree": [
+    {
+      "name": "电视剧 (TV Series)",
+      "id": "root_8322908171596071732",
+      "children": [
+        {
+          "name": "最新上线",
+          "id": "category_36870794",
+          "count": 131,
+          "children": []
+        },
+        {
+          "name": "卫视同步",
+          "id": "category_92376156",
+          "count": 172,
+          "children": []
+        },
+        {
+          "name": "全部剧集",
+          "id": "category_32798195",
+          "count": 0,
+          "children": [
+            {
+              "name": "全部",
+              "id": "category_19092137",
+              "count": 1118,
+              "children": []
+            },
+            {
+              "name": "古装",
+              "id": "category_82205358",
+              "count": 142,
+              "children": []
+            },
+            {
+              "name": "谍战",
+              "id": "category_86585701",
+              "count": 156,
+              "children": []
+            },
+            {
+              "name": "偶像",
+              "id": "category_33770041",
+              "count": 66,
+              "children": []
+            },
+            {
+              "name": "都市",
+              "id": "category_42484986",
+              "count": 320,
+              "children": []
+            },
+            {
+              "name": "TVB",
+              "id": "category_52215058",
+              "count": 21,
+              "children": []
+            },
+            {
+              "name": "年代",
+              "id": "category_88074906",
+              "count": 156,
+              "children": []
+            },
+            {
+              "name": "罪案",
+              "id": "category_94892066",
+              "count": 77,
+              "children": []
+            },
+            {
+              "name": "亚洲",
+              "id": "category_54399439",
+              "count": 9,
+              "children": []
+            },
+            {
+              "name": "欧美",
+              "id": "category_88274503",
+              "count": 6,
+              "children": []
+            },
+            {
+              "name": "免费",
+              "id": "category_77510266",
+              "count": 505,
+              "children": []
+            }
+          ]
+        },
+        {
+          "name": "高分好剧",
+          "id": "category_53224763",
+          "count": 13,
+          "children": []
+        },
+        {
+          "name": "1080",
+          "id": "category_18008093",
+          "count": 17,
+          "children": []
+        },
+        {
+          "name": "720",
+          "id": "category_69357102",
+          "count": 17,
+          "children": []
+        }
+      ]
+    },
+    {
+      "name": "电影 (Movies)",
+      "id": "root_7030727332343608478",
+      "children": [
+        {
+          "name": "4K大片",
+          "id": "category_82023212",
+          "count": 11,
+          "children": []
+        },
+        {
+          "name": "院线首映",
+          "id": "category_96791097",
+          "count": 293,
+          "children": []
+        },
+        {
+          "name": "全部",
+          "id": "category_89204884",
+          "count": 0,
+          "children": [
+            {
+              "name": "动作",
+              "id": "category_30256026",
+              "count": 522,
+              "children": []
+            },
+            {
+              "name": "喜剧",
+              "id": "category_77478703",
+              "count": 419,
+              "children": []
+            },
+            {
+              "name": "科幻",
+              "id": "category_60856427",
+              "count": 294,
+              "children": []
+            },
+            {
+              "name": "动画",
+              "id": "category_92966448",
+              "count": 341,
+              "children": []
+            },
+            {
+              "name": "奇幻",
+              "id": "category_47958925",
+              "count": 190,
+              "children": []
+            },
+            {
+              "name": "爱情",
+              "id": "category_90890337",
+              "count": 284,
+              "children": []
+            },
+            {
+              "name": "惊悚",
+              "id": "category_99283926",
+              "count": 196,
+              "children": []
+            },
+            {
+              "name": "战争",
+              "id": "category_48291795",
+              "count": 100,
+              "children": []
+            },
+            {
+              "name": "剧情",
+              "id": "category_25096544",
+              "count": 800,
+              "children": []
+            },
+            {
+              "name": "经典",
+              "id": "category_12515419",
+              "count": 51,
+              "children": []
+            },
+            {
+              "name": "免费",
+              "id": "category_54556779",
+              "count": 916,
+              "children": []
+            }
+          ]
+        },
+        {
+          "name": "好莱坞巨制",
+          "id": "category_80454289",
+          "count": 82,
+          "children": []
+        },
+        {
+          "name": "按地区",
+          "id": "category_00823570",
+          "count": 0,
+          "children": [
+            {
+              "name": "华语",
+              "id": "category_91911554",
+              "count": 945,
+              "children": []
+            },
+            {
+              "name": "港台地区",
+              "id": "category_53156750",
+              "count": 64,
+              "children": []
+            },
+            {
+              "name": "欧美",
+              "id": "category_81595755",
+              "count": 756,
+              "children": []
+            },
+            {
+              "name": "日韩",
+              "id": "category_77050778",
+              "count": 44,
+              "children": []
+            },
+            {
+              "name": "其它",
+              "id": "category_24621713",
+              "count": 21,
+              "children": []
+            }
+          ]
+        },
+        {
+          "name": "系列电影1080P",
+          "id": "category_26400459",
+          "count": 0,
+          "children": [
+            {
+              "name": "变形金刚系列",
+              "id": "category_51059430",
+              "count": 6,
+              "children": []
+            },
+            {
+              "name": "忍者神龟系列",
+              "id": "category_09384769",
+              "count": 2,
+              "children": []
+            },
+            {
+              "name": "暮光之城系列",
+              "id": "category_46498124108575",
+              "count": 1,
+              "children": []
+            },
+            {
+              "name": "名侦探柯南系列",
+              "id": "category_30137146",
+              "count": 2,
+              "children": []
+            },
+            {
+              "name": "移动迷宫系列",
+              "id": "category_27458932",
+              "count": 3,
+              "children": []
+            },
+            {
+              "name": "勇敢者游戏系列",
+              "id": "category_07174128",
+              "count": 1,
+              "children": []
+            },
+            {
+              "name": "玩具总动员系列",
+              "id": "category_03328978",
+              "count": 4,
+              "children": []
+            },
+            {
+              "name": "黑衣人系列",
+              "id": "category_01196180",
+              "count": 4,
+              "children": []
+            },
+            {
+              "name": "侏罗纪系列",
+              "id": "category_00899862",
+              "count": 3,
+              "children": []
+            },
+            {
+              "name": "唐人街探案系列",
+              "id": "category_17315740",
+              "count": 1,
+              "children": []
+            },
+            {
+              "name": "神奇动物系列",
+              "id": "category_60573590",
+              "count": 3,
+              "children": []
+            },
+            {
+              "name": "007系列",
+              "id": "category_64313723",
+              "count": 1,
+              "children": []
+            },
+            {
+              "name": "星球大战系列",
+              "id": "category_83158034",
+              "count": 9,
+              "children": []
+            },
+            {
+              "name": "漫威系列",
+              "id": "category_51157494",
+              "count": 40,
+              "children": []
+            },
+            {
+              "name": "DC宇宙系列",
+              "id": "category_40067906",
+              "count": 16,
+              "children": []
+            },
+            {
+              "name": "哈利波特系列",
+              "id": "category_00592185",
+              "count": 8,
+              "children": []
+            },
+            {
+              "name": "猩球崛起系列",
+              "id": "category_87758064",
+              "count": 3,
+              "children": []
+            },
+            {
+              "name": "指环王系列",
+              "id": "category_81127999",
+              "count": 2,
+              "children": []
+            },
+            {
+              "name": "博物馆奇妙夜系列",
+              "id": "category_09547213",
+              "count": 3,
+              "children": []
+            },
+            {
+              "name": "碟中谍系列",
+              "id": "category_43528529",
+              "count": 5,
+              "children": []
+            },
+            {
+              "name": "加勒比海盗系列",
+              "id": "category_69098399",
+              "count": 0,
+              "children": []
+            },
+            {
+              "name": "速度与激情系列",
+              "id": "category_12964109",
+              "count": 9,
+              "children": []
+            },
+            {
+              "name": "反贪风暴系列",
+              "id": "category_80333058",
+              "count": 3,
+              "children": []
+            },
+            {
+              "name": "异形系列",
+              "id": "category_29656553",
+              "count": 0,
+              "children": []
+            },
+            {
+              "name": "生化危机系列",
+              "id": "category_71435388",
+              "count": 4,
+              "children": []
+            }
+          ]
+        },
+        {
+          "name": "焦点影人1080P",
+          "id": "category_45105530",
+          "count": 0,
+          "children": [
+            {
+              "name": "王家卫",
+              "id": "category_44886379",
+              "count": 2,
+              "children": []
+            },
+            {
+              "name": "吴京",
+              "id": "category_95945974",
+              "count": 11,
+              "children": []
+            },
+            {
+              "name": "易烊千玺",
+              "id": "category_57409386",
+              "count": 4,
+              "children": []
+            },
+            {
+              "name": "詹姆斯·卡梅隆",
+              "id": "category_29357127",
+              "count": 1,
+              "children": []
+            },
+            {
+              "name": "黄渤",
+              "id": "category_27993957",
+              "count": 10,
+              "children": []
+            },
+            {
+              "name": "王宝强",
+              "id": "category_63619927",
+              "count": 7,
+              "children": []
+            },
+            {
+              "name": "沈腾",
+              "id": "category_82300480",
+              "count": 8,
+              "children": []
+            },
+            {
+              "name": "岳云鹏",
+              "id": "category_85915433",
+              "count": 6,
+              "children": []
+            },
+            {
+              "name": "徐峥",
+              "id": "category_28165396",
+              "count": 5,
+              "children": []
+            },
+            {
+              "name": "梁朝伟",
+              "id": "category_40590600",
+              "count": 2,
+              "children": []
+            },
+            {
+              "name": "张子枫",
+              "id": "category_28614035",
+              "count": 10,
+              "children": []
+            },
+            {
+              "name": "彭于晏",
+              "id": "category_88927882",
+              "count": 5,
+              "children": []
+            },
+            {
+              "name": "张震",
+              "id": "category_37098254",
+              "count": 3,
+              "children": []
+            },
+            {
+              "name": "成龙",
+              "id": "category_97599969",
+              "count": 3,
+              "children": []
+            },
+            {
+              "name": "安妮·海瑟薇",
+              "id": "category_29833447",
+              "count": 5,
+              "children": []
+            },
+            {
+              "name": "陈坤",
+              "id": "category_91815732",
+              "count": 3,
+              "children": []
+            },
+            {
+              "name": "刘德华",
+              "id": "category_87376174",
+              "count": 8,
+              "children": []
+            },
+            {
+              "name": "章子怡",
+              "id": "category_87527976",
+              "count": 4,
+              "children": []
+            },
+            {
+              "name": "杨紫琼",
+              "id": "category_07462344",
+              "count": 4,
+              "children": []
+            },
+            {
+              "name": "周冬雨",
+              "id": "category_76696250",
+              "count": 8,
+              "children": []
+            },
+            {
+              "name": "海清",
+              "id": "category_79418040",
+              "count": 2,
+              "children": []
+            },
+            {
+              "name": "吴孟达",
+              "id": "category_39594154",
+              "count": 2,
+              "children": []
+            },
+            {
+              "name": "马思纯",
+              "id": "category_15463717",
+              "count": 6,
+              "children": []
+            },
+            {
+              "name": "吴磊",
+              "id": "category_70457117",
+              "count": 4,
+              "children": []
+            },
+            {
+              "name": "朱一龙",
+              "id": "category_67035772",
+              "count": 6,
+              "children": []
+            },
+            {
+              "name": "史蒂文·斯皮尔伯格",
+              "id": "category_83536621",
+              "count": 4,
+              "children": []
+            },
+            {
+              "name": "马丽",
+              "id": "category_85573602",
+              "count": 8,
+              "children": []
+            },
+            {
+              "name": "刘亦菲",
+              "id": "category_78918820",
+              "count": 2,
+              "children": []
+            },
+            {
+              "name": "克里斯托弗·诺兰",
+              "id": "category_88176352",
+              "count": 8,
+              "children": []
+            },
+            {
+              "name": "管虎",
+              "id": "category_61970730",
+              "count": 3,
+              "children": []
+            },
+            {
+              "name": "张艺谋",
+              "id": "category_57376966",
+              "count": 6,
+              "children": []
+            },
+            {
+              "name": "张译",
+              "id": "category_95491792",
+              "count": 10,
+              "children": []
+            },
+            {
+              "name": "古天乐",
+              "id": "category_99760210",
+              "count": 11,
+              "children": []
+            },
+            {
+              "name": "道恩·强森",
+              "id": "category_76864342",
+              "count": 6,
+              "children": []
+            },
+            {
+              "name": "杰森·斯坦森",
+              "id": "category_96275013",
+              "count": 3,
+              "children": []
+            },
+            {
+              "name": "张家辉",
+              "id": "category_19110348",
+              "count": 5,
+              "children": []
+            },
+            {
+              "name": "张国荣",
+              "id": "category_01432705",
+              "count": 2,
+              "children": []
+            },
+            {
+              "name": "斯嘉丽·约翰逊",
+              "id": "category_55606702",
+              "count": 6,
+              "children": []
+            },
+            {
+              "name": "周润发",
+              "id": "category_47745731",
+              "count": 0,
+              "children": []
+            },
+            {
+              "name": "周迅",
+              "id": "category_72709849",
+              "count": 6,
+              "children": []
+            },
+            {
+              "name": "汤姆·汉克斯",
+              "id": "category_38732278",
+              "count": 4,
+              "children": []
+            },
+            {
+              "name": "冯小刚",
+              "id": "category_46796922",
+              "count": 1,
+              "children": []
+            }
+          ]
+        },
+        {
+          "name": "重磅推荐",
+          "id": "category_18147166",
+          "count": 10,
+          "children": []
+        }
+      ]
+    },
+    {
+      "name": "少儿 (Kids)",
+      "id": "root_5748713571653442421",
+      "children": [
+        {
+          "name": "720首页推荐位",
+          "id": "category_96441951",
+          "count": 76,
+          "children": []
+        },
+        {
+          "name": "720IP人物图片绑定",
+          "id": "category_99426513",
+          "count": 0,
+          "children": [
+            {
+              "name": "少儿大厅",
+              "id": "category_14400169",
+              "count": 0,
+              "children": []
+            },
+            {
+              "name": "汪汪队",
+              "id": "category_77897778",
+              "count": 0,
+              "children": []
+            },
+            {
+              "name": "小猪佩奇",
+              "id": "category_60729167",
+              "count": 0,
+              "children": []
+            },
+            {
+              "name": "宝宝巴士",
+              "id": "category_97318653",
+              "count": 0,
+              "children": []
+            },
+            {
+              "name": "熊出没",
+              "id": "category_38948914",
+              "count": 0,
+              "children": []
+            },
+            {
+              "name": "汽车城",
+              "id": "category_23883680",
+              "count": 0,
+              "children": []
+            },
+            {
+              "name": "飞狗MOCO",
+              "id": "category_99098632",
+              "count": 0,
+              "children": []
+            },
+            {
+              "name": "超级飞侠",
+              "id": "category_06941541",
+              "count": 0,
+              "children": []
+            },
+            {
+              "name": "叮当小镇",
+              "id": "category_31295267",
+              "count": 0,
+              "children": []
+            },
+            {
+              "name": "猪屁登",
+              "id": "category_49642843",
+              "count": 0,
+              "children": []
+            },
+            {
+              "name": "动画明星",
+              "id": "category_11192284",
+              "count": 0,
+              "children": []
+            },
+            {
+              "name": "海底小纵队",
+              "id": "category_42478913",
+              "count": 0,
+              "children": []
+            },
+            {
+              "name": "喜羊羊",
+              "id": "category_64730311",
+              "count": 0,
+              "children": []
+            },
+            {
+              "name": "猪猪侠",
+              "id": "category_26917756",
+              "count": 0,
+              "children": []
+            },
+            {
+              "name": "奥特曼",
+              "id": "category_65876963",
+              "count": 0,
+              "children": []
+            },
+            {
+              "name": "凯叔",
+              "id": "category_08796792",
+              "count": 0,
+              "children": []
+            },
+            {
+              "name": "百变马丁",
+              "id": "category_31669063",
+              "count": 0,
+              "children": []
+            },
+            {
+              "name": "大会员0元",
+              "id": "category_46616099",
+              "count": 0,
+              "children": []
+            },
+            {
+              "name": "凯叔专区",
+              "id": "category_30559025",
+              "count": 0,
+              "children": []
+            },
+            {
+              "name": "免费看",
+              "id": "category_73827192",
+              "count": 0,
+              "children": []
+            }
+          ]
+        },
+        {
+          "name": "1080首页导航图片绑定",
+          "id": "category_21267526",
+          "count": 0,
+          "children": [
+            {
+              "name": "看动画",
+              "id": "category_52681527",
+              "count": 0,
+              "children": []
+            },
+            {
+              "name": "玩玩具",
+              "id": "category_86696229",
+              "count": 0,
+              "children": []
+            },
+            {
+              "name": "快乐听",
+              "id": "category_21469640",
+              "count": 0,
+              "children": []
+            },
+            {
+              "name": "学知识",
+              "id": "category_02327741",
+              "count": 0,
+              "children": []
+            },
+            {
+              "name": "超级电影",
+              "id": "category_78657517",
+              "count": 0,
+              "children": []
+            },
+            {
+              "name": "免费",
+              "id": "category_98780524",
+              "count": 0,
+              "children": []
+            }
+          ]
+        },
+        {
+          "name": "动画榜单 一网打尽",
+          "id": "category_16723568",
+          "count": 49,
+          "children": []
+        },
+        {
+          "name": "精彩推荐",
+          "id": "category_28090754",
+          "count": 42,
+          "children": []
+        },
+        {
+          "name": "动画榜单 一网打尽",
+          "id": "category_82672692",
+          "count": 0,
+          "children": [
+            {
+              "name": "星期一",
+              "id": "category_28820788",
+              "count": 0,
+              "children": []
+            },
+            {
+              "name": "星期二",
+              "id": "category_34864785",
+              "count": 0,
+              "children": []
+            },
+            {
+              "name": "星期三",
+              "id": "category_06102254",
+              "count": 0,
+              "children": []
+            },
+            {
+              "name": "星期四",
+              "id": "category_84100839",
+              "count": 0,
+              "children": []
+            },
+            {
+              "name": "星期五",
+              "id": "category_25416338",
+              "count": 0,
+              "children": []
+            },
+            {
+              "name": "星期六",
+              "id": "category_60715712",
+              "count": 0,
+              "children": []
+            },
+            {
+              "name": "星期日",
+              "id": "category_32810565",
+              "count": 0,
+              "children": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "综艺 (Variety)",
+      "id": "root_6653116564364328819",
+      "children": [
+        {
+          "name": "家庭版",
+          "id": "category_99062130",
+          "count": 0,
+          "children": [
+            {
+              "name": "Z视介综艺",
+              "id": "category_20851488",
+              "count": 0,
+              "children": []
+            },
+            {
+              "name": "芒果综艺",
+              "id": "category_08797834",
+              "count": 0,
+              "children": []
+            },
+            {
+              "name": "热播推荐",
+              "id": "category_94921467",
+              "count": 0,
+              "children": []
+            },
+            {
+              "name": "真人秀场",
+              "id": "category_61654722",
+              "count": 0,
+              "children": []
+            },
+            {
+              "name": "情感观察",
+              "id": "category_52197951",
+              "count": 0,
+              "children": []
+            },
+            {
+              "name": "幽默搞笑",
+              "id": "category_70871350",
+              "count": 0,
+              "children": []
+            }
+          ]
+        },
+        {
+          "name": "综艺次屏720P",
+          "id": "category_74632398",
+          "count": 0,
+          "children": [
+            {
+              "name": "独家策划",
+              "id": "category_12738781",
+              "count": 16,
+              "children": []
+            },
+            {
+              "name": "精彩看点",
+              "id": "category_93176058",
+              "count": 343,
+              "children": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "动漫 (Anime)",
+      "id": "root_7642574640541259735",
+      "children": [
+        {
+          "name": "限时免费 强档推荐",
+          "id": "category_01658822",
+          "count": 10,
+          "children": []
+        },
+        {
+          "name": "未订购新用户",
+          "id": "category_11025722",
+          "count": 0,
+          "children": [
+            {
+              "name": "主页面",
+              "id": "category_16400738",
+              "count": 0,
+              "children": []
+            },
+            {
+              "name": "订购按钮1",
+              "id": "category_95415791",
+              "count": 0,
+              "children": []
+            },
+            {
+              "name": "订购按钮2",
+              "id": "category_04071103",
+              "count": 0,
+              "children": []
+            }
+          ]
+        },
+        {
+          "name": "首页分类",
+          "id": "category_28563132",
+          "count": 0,
+          "children": [
+            {
+              "name": "新番上线",
+              "id": "category_61273366",
+              "count": 0,
+              "children": []
+            },
+            {
+              "name": "热播动漫",
+              "id": "category_73800346",
+              "count": 0,
+              "children": []
+            },
+            {
+              "name": "全部动漫",
+              "id": "category_64529874",
+              "count": 0,
+              "children": []
+            },
+            {
+              "name": "国漫精选",
+              "id": "category_79166777",
+              "count": 0,
+              "children": []
+            },
+            {
+              "name": "日漫经典",
+              "id": "category_02838681",
+              "count": 0,
+              "children": []
+            },
+            {
+              "name": "其他动漫",
+              "id": "category_26223930",
+              "count": 0,
+              "children": []
+            },
+            {
+              "name": "动漫IP",
+              "id": "category_72803739",
+              "count": 0,
+              "children": []
+            }
+          ]
+        },
+        {
+          "name": "首页分类",
+          "id": "category_29815252",
+          "count": 0,
+          "children": [
+            {
+              "name": "新番上线",
+              "id": "category_03824847",
+              "count": 84,
+              "children": []
+            },
+            {
+              "name": "热播动漫",
+              "id": "category_19100400",
+              "count": 60,
+              "children": []
+            },
+            {
+              "name": "全部动漫",
+              "id": "category_77371402",
+              "count": 107,
+              "children": []
+            },
+            {
+              "name": "国漫精选",
+              "id": "category_82215916",
+              "count": 347,
+              "children": []
+            },
+            {
+              "name": "日漫经典",
+              "id": "category_36201848",
+              "count": 72,
+              "children": []
+            },
+            {
+              "name": "其他动漫",
+              "id": "category_97885024",
+              "count": 2,
+              "children": []
+            },
+            {
+              "name": "动漫IP",
+              "id": "category_82114042",
+              "count": 0,
+              "children": []
+            }
+          ]
+        },
+        {
+          "name": "精选动漫 火热来袭",
+          "id": "category_32821383",
+          "count": 65,
+          "children": []
+        },
+        {
+          "name": "上方推荐位新",
+          "id": "category_35727691",
+          "count": 0,
+          "children": [
+            {
+              "name": "推荐位1",
+              "id": "category_58816151",
+              "count": 23,
+              "children": []
+            },
+            {
+              "name": "推荐位2",
+              "id": "category_80685380",
+              "count": 26,
+              "children": []
+            },
+            {
+              "name": "推荐位3",
+              "id": "category_16140758",
+              "count": 23,
+              "children": []
+            },
+            {
+              "name": "推荐位4",
+              "id": "category_75915286",
+              "count": 23,
+              "children": []
+            },
+            {
+              "name": "推荐位5",
+              "id": "category_91666947",
+              "count": 21,
+              "children": []
+            },
+            {
+              "name": "推荐位6",
+              "id": "category_40773748",
+              "count": 1,
+              "children": []
+            }
+          ]
+        },
+        {
+          "name": "上屏推荐位新",
+          "id": "category_47234832",
+          "count": 0,
+          "children": [
+            {
+              "name": "推荐位1",
+              "id": "category_14023174",
+              "count": 23,
+              "children": []
+            },
+            {
+              "name": "推荐位2",
+              "id": "category_30316133",
+              "count": 60,
+              "children": []
+            },
+            {
+              "name": "推荐位3",
+              "id": "category_94942628",
+              "count": 38,
+              "children": []
+            },
+            {
+              "name": "推荐位4",
+              "id": "category_12665393",
+              "count": 23,
+              "children": []
+            },
+            {
+              "name": "推荐位5",
+              "id": "category_82927177",
+              "count": 28,
+              "children": []
+            },
+            {
+              "name": "推荐位6",
+              "id": "category_73469390",
+              "count": 1,
+              "children": []
+            }
+          ]
+        },
+        {
+          "name": "动漫IP",
+          "id": "category_72893345",
+          "count": 0,
+          "children": [
+            {
+              "name": "奥特曼",
+              "id": "category_72552226",
+              "count": 0,
+              "children": []
+            },
+            {
+              "name": "斗罗大陆",
+              "id": "category_98887322",
+              "count": 0,
+              "children": []
+            },
+            {
+              "name": "不白吃",
+              "id": "category_57718427",
+              "count": 0,
+              "children": []
+            },
+            {
+              "name": "香肠派对",
+              "id": "category_91977629",
+              "count": 9,
+              "children": []
+            },
+            {
+              "name": "伍六七",
+              "id": "category_58111523",
+              "count": 7,
+              "children": []
+            },
+            {
+              "name": "柯南",
+              "id": "category_23714689",
+              "count": 0,
+              "children": []
+            },
+            {
+              "name": "精灵梦叶罗丽",
+              "id": "category_66133387",
+              "count": 0,
+              "children": []
+            },
+            {
+              "name": "奶龙",
+              "id": "category_79613548",
+              "count": 0,
+              "children": []
+            }
+          ]
+        },
+        {
+          "name": "限时免费 强档推荐",
+          "id": "category_74317294",
+          "count": 10,
+          "children": []
+        },
+        {
+          "name": "精选动漫 火热来袭",
+          "id": "category_74741168",
+          "count": 108,
+          "children": []
+        },
+        {
+          "name": "动漫IP",
+          "id": "category_75474260",
+          "count": 0,
+          "children": [
+            {
+              "name": "奥特曼",
+              "id": "category_65121256",
+              "count": 0,
+              "children": []
+            },
+            {
+              "name": "斗罗大陆",
+              "id": "category_81881936",
+              "count": 0,
+              "children": []
+            },
+            {
+              "name": "不白吃",
+              "id": "category_69864984",
+              "count": 0,
+              "children": []
+            },
+            {
+              "name": "香肠派对",
+              "id": "category_12317116",
+              "count": 0,
+              "children": []
+            },
+            {
+              "name": "伍六七",
+              "id": "category_71418422",
+              "count": 0,
+              "children": []
+            },
+            {
+              "name": "柯南",
+              "id": "category_99120492",
+              "count": 0,
+              "children": []
+            },
+            {
+              "name": "精灵梦叶罗丽",
+              "id": "category_68856848",
+              "count": 1,
+              "children": []
+            }
+          ]
+        },
+        {
+          "name": "猜你喜欢",
+          "id": "category_79395655",
+          "count": 40,
+          "children": []
+        },
+        {
+          "name": "猜你喜欢",
+          "id": "category_93202105",
+          "count": 40,
+          "children": []
+        }
+      ]
+    },
+    {
+      "name": "纪录 (Documentaries)",
+      "id": "root_783245345710268262",
+      "children": [
+        {
+          "name": "纪录片库高清",
+          "id": "category_88700231",
+          "count": 0,
+          "children": [
+            {
+              "name": "自然",
+              "id": "category_28343770",
+              "count": 65,
+              "children": []
+            },
+            {
+              "name": "动物",
+              "id": "category_10329781",
+              "count": 57,
+              "children": []
+            },
+            {
+              "name": "美食",
+              "id": "category_29507778",
+              "count": 64,
+              "children": []
+            },
+            {
+              "name": "人文",
+              "id": "category_25293790",
+              "count": 84,
+              "children": []
+            },
+            {
+              "name": "历史",
+              "id": "category_72107823",
+              "count": 93,
+              "children": []
+            },
+            {
+              "name": "社会",
+              "id": "category_15966618",
+              "count": 30,
+              "children": []
+            },
+            {
+              "name": "新时代",
+              "id": "category_33701197",
+              "count": 34,
+              "children": []
+            },
+            {
+              "name": "探险",
+              "id": "category_26813153",
+              "count": 25,
+              "children": []
+            },
+            {
+              "name": "科技",
+              "id": "category_78669433",
+              "count": 49,
+              "children": []
+            },
+            {
+              "name": "免费栏目",
+              "id": "category_23729098",
+              "count": 20,
+              "children": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "中国蓝 (Zhejiang TV)",
+      "id": "root_8506128479437684398",
+      "children": [
+        {
+          "name": "中国蓝高清",
+          "id": "category_97521600",
+          "count": 0,
+          "children": [
+            {
+              "name": "王牌精选",
+              "id": "category_34625597",
+              "count": 47,
+              "children": []
+            },
+            {
+              "name": "宝藏综艺",
+              "id": "category_65759140",
+              "count": 70,
+              "children": []
+            },
+            {
+              "name": "文化畅想",
+              "id": "category_77450309",
+              "count": 30,
+              "children": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "戏曲 (Opera)",
+      "id": "root_5636295968596229205",
+      "children": [
+        {
+          "name": "名家名段",
+          "id": "category_03995656",
+          "count": 0,
+          "children": [
+            {
+              "name": "王文娟",
+              "id": "category_14218223",
+              "count": 0,
+              "children": []
+            },
+            {
+              "name": "茅威涛",
+              "id": "category_89820751",
+              "count": 0,
+              "children": []
+            },
+            {
+              "name": "赵志刚",
+              "id": "category_53652287",
+              "count": 0,
+              "children": []
+            },
+            {
+              "name": "丁小蛙",
+              "id": "category_40709120",
+              "count": 0,
+              "children": []
+            },
+            {
+              "name": "钱惠丽",
+              "id": "category_79017715",
+              "count": 0,
+              "children": []
+            },
+            {
+              "name": "徐玉兰",
+              "id": "category_28364079",
+              "count": 0,
+              "children": []
+            },
+            {
+              "name": "单仰萍",
+              "id": "category_15485854",
+              "count": 0,
+              "children": []
+            },
+            {
+              "name": "方亚芬",
+              "id": "category_57516382",
+              "count": 0,
+              "children": []
+            },
+            {
+              "name": "王志萍",
+              "id": "category_64473672",
+              "count": 0,
+              "children": []
+            },
+            {
+              "name": "吕瑞英",
+              "id": "category_97530825",
+              "count": 0,
+              "children": []
+            },
+            {
+              "name": "郑国凤",
+              "id": "category_72756648",
+              "count": 0,
+              "children": []
+            },
+            {
+              "name": "傅全香",
+              "id": "category_31236939",
+              "count": 0,
+              "children": []
+            }
+          ]
+        },
+        {
+          "name": "栏目导航条",
+          "id": "category_48425078",
+          "count": 0,
+          "children": [
+            {
+              "name": "广场舞",
+              "id": "category_31181635",
+              "count": 0,
+              "children": []
+            },
+            {
+              "name": "小百花",
+              "id": "category_03230896",
+              "count": 0,
+              "children": []
+            },
+            {
+              "name": "越剧",
+              "id": "category_20619150",
+              "count": 37,
+              "children": []
+            },
+            {
+              "name": "京剧",
+              "id": "category_67364460",
+              "count": 11,
+              "children": []
+            },
+            {
+              "name": "昆剧",
+              "id": "category_11928373",
+              "count": 14,
+              "children": []
+            },
+            {
+              "name": "黄梅戏",
+              "id": "category_34419661",
+              "count": 9,
+              "children": []
+            },
+            {
+              "name": "栏目",
+              "id": "category_47516374",
+              "count": 0,
+              "children": []
+            },
+            {
+              "name": "名家名段",
+              "id": "category_28501189",
+              "count": 0,
+              "children": []
+            }
+          ]
+        },
+        {
+          "name": "Unknown",
+          "id": "category_61189266",
+          "count": 0,
+          "children": []
+        },
+        {
+          "name": "Unknown",
+          "id": "category_63417345",
+          "count": 0,
+          "children": []
+        },
+        {
+          "name": "名家名段",
+          "id": "category_85214466",
+          "count": 0,
+          "children": [
+            {
+              "name": "王文娟",
+              "id": "category_61338667",
+              "count": 0,
+              "children": []
+            },
+            {
+              "name": "茅威涛",
+              "id": "category_87634041",
+              "count": 0,
+              "children": []
+            },
+            {
+              "name": "赵志刚",
+              "id": "category_36228014",
+              "count": 0,
+              "children": []
+            },
+            {
+              "name": "丁小蛙",
+              "id": "category_71749532",
+              "count": 0,
+              "children": []
+            },
+            {
+              "name": "钱惠丽",
+              "id": "category_86733433",
+              "count": 0,
+              "children": []
+            },
+            {
+              "name": "徐玉兰",
+              "id": "category_83930461",
+              "count": 0,
+              "children": []
+            },
+            {
+              "name": "单仰萍",
+              "id": "category_15466445",
+              "count": 0,
+              "children": []
+            },
+            {
+              "name": "方亚芬",
+              "id": "category_57001599",
+              "count": 0,
+              "children": []
+            },
+            {
+              "name": "王志萍",
+              "id": "category_22440995",
+              "count": 0,
+              "children": []
+            },
+            {
+              "name": "吕瑞英",
+              "id": "category_63779710",
+              "count": 0,
+              "children": []
+            },
+            {
+              "name": "郑国凤",
+              "id": "category_53955636",
+              "count": 0,
+              "children": []
+            },
+            {
+              "name": "傅全香",
+              "id": "category_90863030",
+              "count": 0,
+              "children": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "新闻 (News)",
+      "id": "root_7424607520173786190",
+      "children": [
+        {
+          "name": "第一屏四个位置",
+          "id": "category_05029365",
+          "count": 24,
+          "children": []
+        },
+        {
+          "name": "第一屏左上角",
+          "id": "category_09094953",
+          "count": 20,
+          "children": []
+        },
+        {
+          "name": "Unknown",
+          "id": "category_29569382",
+          "count": 0,
+          "children": []
+        },
+        {
+          "name": "Unknown",
+          "id": "category_30683848",
+          "count": 0,
+          "children": []
+        },
+        {
+          "name": "第一屏左上角",
+          "id": "category_37767269",
+          "count": 26,
+          "children": []
+        },
+        {
+          "name": "新闻导航条",
+          "id": "category_45304254",
+          "count": 0,
+          "children": [
+            {
+              "name": "浙江",
+              "id": "category_62963561",
+              "count": 0,
+              "children": []
+            },
+            {
+              "name": "社会",
+              "id": "category_34942166",
+              "count": 0,
+              "children": []
+            },
+            {
+              "name": "国际",
+              "id": "category_87267432",
+              "count": 0,
+              "children": []
+            },
+            {
+              "name": "军事",
+              "id": "category_39958643",
+              "count": 0,
+              "children": []
+            },
+            {
+              "name": "法制",
+              "id": "category_76561958",
+              "count": 0,
+              "children": []
+            },
+            {
+              "name": "财经",
+              "id": "category_33631710",
+              "count": 0,
+              "children": []
+            },
+            {
+              "name": "生活",
+              "id": "category_42972159",
+              "count": 0,
+              "children": []
+            }
+          ]
+        },
+        {
+          "name": "Unknown",
+          "id": "category_49064940",
+          "count": 0,
+          "children": []
+        },
+        {
+          "name": "Unknown",
+          "id": "category_51165776",
+          "count": 0,
+          "children": []
+        },
+        {
+          "name": "第一屏四个位置",
+          "id": "category_55090686",
+          "count": 20,
+          "children": []
+        },
+        {
+          "name": "今日焦点",
+          "id": "category_55979252",
+          "count": 0,
+          "children": []
+        },
+        {
+          "name": "Unknown",
+          "id": "category_62465753",
+          "count": 0,
+          "children": []
+        },
+        {
+          "name": "爆点短视频",
+          "id": "category_63160966",
+          "count": 10,
+          "children": []
+        },
+        {
+          "name": "Unknown",
+          "id": "category_66480337",
+          "count": 0,
+          "children": []
+        },
+        {
+          "name": "Unknown",
+          "id": "category_71027701",
+          "count": 0,
+          "children": []
+        },
+        {
+          "name": "Unknown",
+          "id": "category_94378684",
+          "count": 0,
+          "children": []
+        },
+        {
+          "name": "模板区块",
+          "id": "catauto41287",
+          "count": 0,
+          "children": [
+            {
+              "name": "青春环游记第五季",
+              "id": "catauto39982",
+              "count": 0,
+              "children": []
+            },
+            {
+              "name": "奥特曼冒险世界",
+              "id": "catauto41235",
+              "count": 0,
+              "children": []
+            },
+            {
+              "name": "李叔同",
+              "id": "catauto39981",
+              "count": 0,
+              "children": []
+            },
+            {
+              "name": "玉蜻蜓",
+              "id": "catauto41295",
+              "count": 0,
+              "children": []
+            },
+            {
+              "name": "乘风2024",
+              "id": "catauto102692",
+              "count": 0,
+              "children": []
+            },
+            {
+              "name": "电影",
+              "id": "catauto130849",
+              "count": 0,
+              "children": []
+            },
+            {
+              "name": "电视剧",
+              "id": "catauto132113",
+              "count": 0,
+              "children": []
+            },
+            {
+              "name": "少儿",
+              "id": "catauto130846",
+              "count": 0,
+              "children": []
+            },
+            {
+              "name": "综艺",
+              "id": "catauto132114",
+              "count": 0,
+              "children": []
+            },
+            {
+              "name": "付费单片",
+              "id": "catauto130847",
+              "count": 0,
+              "children": []
+            },
+            {
+              "name": "全部",
+              "id": "catauto132172",
+              "count": 0,
+              "children": []
+            },
+            {
+              "name": "电影",
+              "id": "catauto130841",
+              "count": 0,
+              "children": []
+            },
+            {
+              "name": "电视剧",
+              "id": "catauto132170",
+              "count": 0,
+              "children": []
+            },
+            {
+              "name": "少儿",
+              "id": "catauto132171",
+              "count": 0,
+              "children": []
+            },
+            {
+              "name": "综艺",
+              "id": "catauto132109",
+              "count": 0,
+              "children": []
+            },
+            {
+              "name": "动漫",
+              "id": "catauto132108",
+              "count": 0,
+              "children": []
+            },
+            {
+              "name": "亚运小记者",
+              "id": "catauto130833",
+              "count": 0,
+              "children": []
+            },
+            {
+              "name": "共富宁围",
+              "id": "catauto132162",
+              "count": 0,
+              "children": []
+            },
+            {
+              "name": "全员喜剧人 爆笑过端午",
+              "id": "catauto39986",
+              "count": 0,
+              "children": []
+            },
+            {
+              "name": "诺兰出品，必属精品！",
+              "id": "catauto41236",
+              "count": 0,
+              "children": []
+            },
+            {
+              "name": "叔圈顶流在线“狂飙”",
+              "id": "catauto39985",
+              "count": 0,
+              "children": []
+            },
+            {
+              "name": "反转局中局",
+              "id": "catauto127060",
+              "count": 0,
+              "children": []
+            },
+            {
+              "name": "人性与母爱",
+              "id": "catauto127001",
+              "count": 0,
+              "children": []
+            },
+            {
+              "name": "酒店凶杀案",
+              "id": "catauto126999",
+              "count": 0,
+              "children": []
+            },
+            {
+              "name": "水城谋杀案",
+              "id": "catauto127000",
+              "count": 0,
+              "children": []
+            },
+            {
+              "name": "神秘古埃及",
+              "id": "catauto127125",
+              "count": 0,
+              "children": []
+            },
+            {
+              "name": "富翁死亡之谜",
+              "id": "catauto127059",
+              "count": 0,
+              "children": []
+            },
+            {
+              "name": "搓出欢乐 胡出惊喜！",
+              "id": "catauto73232",
+              "count": 0,
+              "children": []
+            },
+            {
+              "name": "追寻信仰之光",
+              "id": "catauto39983",
+              "count": 0,
+              "children": []
+            },
+            {
+              "name": "中国梦 新征程",
+              "id": "catauto39984",
+              "count": 0,
+              "children": []
+            },
+            {
+              "name": "战火兄弟情",
+              "id": "catauto128310",
+              "count": 0,
+              "children": []
+            },
+            {
+              "name": "无惧艰难",
+              "id": "catauto128425",
+              "count": 0,
+              "children": []
+            },
+            {
+              "name": "抗日义勇军",
+              "id": "catauto128424",
+              "count": 0,
+              "children": []
+            },
+            {
+              "name": "民族大义",
+              "id": "catauto128309",
+              "count": 0,
+              "children": []
+            },
+            {
+              "name": "进步青年",
+              "id": "catauto128362",
+              "count": 0,
+              "children": []
+            },
+            {
+              "name": "青年的热血与梦想",
+              "id": "catauto119296",
+              "count": 0,
+              "children": []
+            },
+            {
+              "name": "当代青年的言志影像诗",
+              "id": "catauto118034",
+              "count": 0,
+              "children": []
+            },
+            {
+              "name": "小篮球大梦想",
+              "id": "catauto119297",
+              "count": 0,
+              "children": []
+            },
+            {
+              "name": "小猪佩奇活力一夏",
+              "id": "catauto127069",
+              "count": 0,
+              "children": []
+            },
+            {
+              "name": "熊出没之夏日连连看",
+              "id": "catauto127132",
+              "count": 0,
+              "children": []
+            },
+            {
+              "name": "惊喜娃娃-惊喜之家2",
+              "id": "catauto127016",
+              "count": 0,
+              "children": []
+            },
+            {
+              "name": "会说话的汤姆猫迷你家族之生活处处是惊喜",
+              "id": "catauto127070",
+              "count": 0,
+              "children": []
+            },
+            {
+              "name": "班班和莉莉的小王国第二季",
+              "id": "catauto127017",
+              "count": 0,
+              "children": []
+            },
+            {
+              "name": "浙里直播",
+              "id": "catauto128282",
+              "count": 0,
+              "children": []
+            },
+            {
+              "name": "陈稼地产工作室",
+              "id": "catauto128281",
+              "count": 0,
+              "children": []
+            },
+            {
+              "name": "奔跑吧少年",
+              "id": "catauto128392",
+              "count": 0,
+              "children": []
+            },
+            {
+              "name": "金融宣传",
+              "id": "catauto128335",
+              "count": 0,
+              "children": []
+            },
+            {
+              "name": "食味浙江",
+              "id": "catauto128393",
+              "count": 0,
+              "children": []
+            },
+            {
+              "name": "共富宁围",
+              "id": "catauto128394",
+              "count": 0,
+              "children": []
+            },
+            {
+              "name": "随心看",
+              "id": "catauto128280",
+              "count": 0,
+              "children": []
+            },
+            {
+              "name": "补看二刷好时机",
+              "id": "catauto54076",
+              "count": 0,
+              "children": []
+            },
+            {
+              "name": "宝宝巴士陪你过新年",
+              "id": "catauto55307",
+              "count": 0,
+              "children": []
+            },
+            {
+              "name": "上天入海",
+              "id": "catauto55308",
+              "count": 0,
+              "children": []
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "updated_at": 1782473633.9129405
+}

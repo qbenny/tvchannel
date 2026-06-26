@@ -90,8 +90,8 @@ def load_stb_config() -> dict:
         "stb_id": "",
         "mac_address": "",
         "ip_address": "",
-        "base_url": "http://218.71.130.66:33200",
-        "des_key": "00000000"
+        "base_url": "",
+        "des_key": ""
     }
 
 # Attempt to import Cryptodome for DES

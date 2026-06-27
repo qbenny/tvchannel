@@ -80,6 +80,15 @@ const app = createApp({
             resolvedIp: '',
             savingStb: false,
             
+            // Sim Authentication Status
+            simStatus: {
+                is_authenticated: false,
+                epg_base_url: null,
+                user_token: null,
+                jsessionid: null,
+            },
+            simStatusTimer: null,
+            
             // Log Display State
             logs: [],
             logLevelFilter: 'ALL',
@@ -188,8 +197,10 @@ const app = createApp({
             }
             if (newTab === 'stb') {
                 this.startLogPolling();
+                this.startSimStatusPolling();
             } else {
                 this.stopLogPolling();
+                this.stopSimStatusPolling();
             }
         }
     },
@@ -201,6 +212,7 @@ const app = createApp({
         this.fetchSourceTree();
         if (this.activeTab === 'stb') {
             this.startLogPolling();
+            this.startSimStatusPolling();
         }
     },
     
@@ -213,6 +225,7 @@ const app = createApp({
 
     beforeUnmount() {
         this.stopLogPolling();
+        this.stopSimStatusPolling();
     },
     
     methods: {
@@ -229,6 +242,46 @@ const app = createApp({
             localStorage.setItem('theme', newTheme);
             document.documentElement.setAttribute('data-theme', newTheme);
             this.showToast(`主题已切换为 ${newTheme === 'dark' ? '深色' : '浅色'} 模式`);
+        },
+        
+        // Sim Status Polling
+        async fetchSimStatus() {
+            try {
+                const response = await fetch('/api/sim-status');
+                if (response.ok) {
+                    this.simStatus = await response.json();
+                }
+            } catch (error) {
+                // Silent fail - don't spam errors in console
+            }
+        },
+        
+        startSimStatusPolling() {
+            this.fetchSimStatus();
+            if (!this.simStatusTimer) {
+                this.simStatusTimer = setInterval(() => this.fetchSimStatus(), 5000);
+            }
+        },
+        
+        stopSimStatusPolling() {
+            if (this.simStatusTimer) {
+                clearInterval(this.simStatusTimer);
+                this.simStatusTimer = null;
+            }
+        },
+        
+        maskToken(token) {
+            if (!token || token.length <= 12) return token;
+            return token.substring(0, 6) + '••••••••' + token.substring(token.length - 6);
+        },
+        
+        async copyToClipboard(text) {
+            try {
+                await navigator.clipboard.writeText(text);
+                this.showToast('已复制到剪贴板 ✓', 'success');
+            } catch (e) {
+                this.showToast('复制失败，请手动复制', 'error');
+            }
         },
         
         // Toast notifications

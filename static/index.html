@@ -119,6 +119,32 @@
                                 <span class="status-val text-success">✔️ Crypto.Cipher 动态算密激活</span>
                             </div>
                             <div class="status-item">
+                                <span class="status-label">鉴权状态</span>
+                                <span :class="simStatus.is_authenticated ? 'status-val text-success' : 'status-val text-muted'">
+                                    {{ simStatus.is_authenticated ? '✅ 已登录' : '⭕ 未登录' }}
+                                </span>
+                            </div>
+                            <div class="status-item" v-if="simStatus.is_authenticated">
+                                <span class="status-label">EPG 网关</span>
+                                <span class="status-val highlight">{{ simStatus.epg_base_url || '—' }}</span>
+                            </div>
+                            <div class="status-item">
+                                <span class="status-label">JSESSIONID</span>
+                                <span class="status-val token-val" v-if="simStatus.jsessionid" :title="simStatus.jsessionid">
+                                    <span class="token-text">{{ maskToken(simStatus.jsessionid) }}</span>
+                                    <button class="copy-btn" @click="copyToClipboard(simStatus.jsessionid)" title="复制完整 JSESSIONID">📋</button>
+                                </span>
+                                <span class="status-val text-muted" v-else>—</span>
+                            </div>
+                            <div class="status-item">
+                                <span class="status-label">UserToken</span>
+                                <span class="status-val token-val" v-if="simStatus.user_token" :title="simStatus.user_token">
+                                    <span class="token-text">{{ maskToken(simStatus.user_token) }}</span>
+                                    <button class="copy-btn" @click="copyToClipboard(simStatus.user_token)" title="复制完整 UserToken">📋</button>
+                                </span>
+                                <span class="status-val text-muted" v-else>—</span>
+                            </div>
+                            <div class="status-item">
                                 <span class="status-label">说明</span>
                                 <p class="status-desc">机顶盒配置用于与电信 EPG 网关建立安全链路以获取直播地址及点播图片、播放 URL。建议直接保持 IP 地址为空，以允许程序根据宿主机当前连通 EPG 节点的路由状况自动生成正确的源 IP。</p>
                             </div>

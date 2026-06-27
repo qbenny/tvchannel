@@ -26,8 +26,8 @@ class MemoryLogBuffer:
         if not line:
             return
         
-        # Filter out log polling and static assets to prevent log flooding
-        if "/api/logs" in line or "/static/" in line:
+        # Filter out log polling, status polling, and static assets to prevent log flooding
+        if "/api/logs" in line or "/api/sim-status" in line or "/static/" in line:
             return
 
         match = self.log_pattern.match(line)
@@ -841,6 +841,17 @@ async def get_settings():
 @app.get("/api/stb-config")
 async def get_stb_config():
     return load_stb_config()
+
+@app.get("/api/sim-status")
+async def get_sim_status():
+    """Return the current authentication status, JSESSIONID and UserToken of the STB simulator."""
+    jsessionid = sim.state.session.cookies.get("JSESSIONID", None)
+    return {
+        "is_authenticated": sim.state.is_authenticated,
+        "epg_base_url": sim.state.epg_base_url or None,
+        "user_token": sim.state.user_token or None,
+        "jsessionid": jsessionid,
+    }
 
 @app.post("/api/stb-config")
 async def save_stb_config(config_in: dict):

@@ -492,6 +492,43 @@ body {
     word-break: break-all;
 }
 
+.status-val.text-muted {
+    color: var(--text-muted);
+}
+
+.token-val {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+}
+
+.token-text {
+    font-family: 'Consolas', 'Fira Code', monospace;
+    font-size: 13px;
+    letter-spacing: 0.5px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.copy-btn {
+    background: none;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 2px 6px;
+    font-size: 13px;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: background-color 0.15s ease, border-color 0.15s ease;
+    line-height: 1.4;
+}
+
+.copy-btn:hover {
+    background: var(--border-color);
+    border-color: var(--border-hover);
+}
+
 /* VOD Custom Classification */
 .vod-tabs {
     display: flex;

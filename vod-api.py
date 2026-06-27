@@ -1,18 +1,15 @@
-import re
 import os
 import json
-import ast
 import requests
 from fastapi import FastAPI, Request, Response
-from fastapi.responses import JSONResponse, RedirectResponse, StreamingResponse, FileResponse
+from fastapi.responses import JSONResponse, RedirectResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
 import uvicorn
-import sys
 import threading
 import time
 from contextlib import asynccontextmanager
 
-from run_simulator import STBDeviceConfig, STBSimulator, load_stb_config
+from run_simulator import STBDeviceConfig, STBSimulator, load_stb_config, parse_epg_json
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -24,6 +21,17 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 app.mount("/static", StaticFiles(directory="static"), name="static")
+
+@app.get("/")
+async def root_redirect():
+    return RedirectResponse(url="/settings")
+
+@app.exception_handler(404)
+async def custom_404_handler(request: Request, exc: Exception):
+    accept = request.headers.get("accept", "")
+    if "text/html" in accept:
+        return RedirectResponse(url="/settings")
+    return JSONResponse(status_code=404, content={"detail": "Not Found"})
 
 # ==========================================
 # 1. IPTV STB Simulator Initialization & Auth
@@ -87,7 +95,7 @@ os.makedirs(DATA_DIR, exist_ok=True)
 POSTER_CACHE_FILE = os.path.join(DATA_DIR, "poster_cache.json")
 VOD_CATEGORIES_FILE = os.path.join(DATA_DIR, "vod_categories.json")
 VOD_SOURCE_TREE_CACHE_FILE = os.path.join(DATA_DIR, "vod_source_tree_cache.json")
-VIS_DOMAIN = "http://115.233.200.59:58007/epg/"
+VIS_DOMAIN = "http://115.233.200.59:58007/epg/" #待修改
 
 # Shared state for background source-tree refresh
 source_tree_refresh_status = {
@@ -200,12 +208,15 @@ def load_vod_categories():
     return categories
 
 
+poster_lock = threading.Lock()
+
 def load_poster_cache():
     global poster_cache
     if os.path.exists(POSTER_CACHE_FILE):
         try:
-            with open(POSTER_CACHE_FILE, "r", encoding="utf-8") as f:
-                poster_cache = json.load(f)
+            with poster_lock:
+                with open(POSTER_CACHE_FILE, "r", encoding="utf-8") as f:
+                    poster_cache = json.load(f)
             print(f">>> [Poster Cache] Loaded {len(poster_cache)} items from disk.")
         except Exception as e:
             print(f">>> [Poster Cache] Error loading poster cache: {e}")
@@ -215,73 +226,15 @@ def load_poster_cache():
 
 def save_poster_cache():
     try:
-        with open(POSTER_CACHE_FILE, "w", encoding="utf-8") as f:
-            json.dump(poster_cache, f, ensure_ascii=False, indent=2)
+        with poster_lock:
+            with open(POSTER_CACHE_FILE, "w", encoding="utf-8") as f:
+                json.dump(poster_cache, f, ensure_ascii=False, indent=2)
     except Exception as e:
         print(f">>> [Poster Cache] Error saving poster cache: {e}")
-
-def parse_epg_json(text):
-    try:
-        return json.loads(text)
-    except:
-        pass
-    try:
-        cleaned = text.strip()
-        if cleaned.startswith('(') and cleaned.endswith(')'):
-            cleaned = cleaned[1:-1].strip()
-        return ast.literal_eval(cleaned)
-    except:
-        return {}
-
 
 # ==========================================
 # 2b. VOD Source Tree: Live Fetch & Cache
 # ==========================================
-
-def _parse_source_tree_txt():
-    """Parse the hierarchical category tree from vod_catalog_tree.txt (structure only, no counts)."""
-    tree_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "research_and_debug", "vod_catalog_tree.txt")
-    if not os.path.exists(tree_path):
-        return []
-
-    tree = []
-    current_root = None
-    current_level1 = None
-
-    root_pat  = re.compile(r"^\[(.+?)\]")
-    item_pat  = re.compile(r"^(\s*)-\s+(.+?)\s+\(ID:\s+(.+?)\)")
-
-    try:
-        with open(tree_path, "r", encoding="utf-8") as f:
-            for line in f:
-                line = line.rstrip()
-                if not line or line.startswith("===") or "\u70b9\u64ad\u7cfb\u7edf\u5206\u7c7b\u76ee\u5f55\u6811" in line:
-                    continue
-
-                root_match = root_pat.match(line)
-                if root_match:
-                    root_name = root_match.group(1)
-                    current_root = {"name": root_name, "id": f"root_{abs(hash(root_name))}", "children": []}
-                    tree.append(current_root)
-                    current_level1 = None
-                    continue
-
-                item_match = item_pat.match(line)
-                if item_match:
-                    indent, name, cat_id = item_match.groups()
-                    node = {"name": name, "id": cat_id, "count": 0, "children": []}
-                    if len(indent) == 2:
-                        if current_root:
-                            current_root["children"].append(node)
-                            current_level1 = node
-                    elif len(indent) == 4:
-                        if current_level1:
-                            current_level1["children"].append(node)
-    except Exception as e:
-        print(f">>> [Source Tree] Error parsing txt: {e}")
-
-    return tree
-
 
 def _fetch_leaf_counts(tree):
     """For every leaf-level category node, hit VIS API with size=1 to get recordCount."""
@@ -298,10 +251,14 @@ def _fetch_leaf_counts(tree):
     source_tree_refresh_status["total"] = len(leaf_nodes)
     source_tree_refresh_status["done"]  = 0
 
-    for node in leaf_nodes:
+    from concurrent.futures import ThreadPoolExecutor
+    status_lock = threading.Lock()
+
+    def fetch_count(node):
+        global source_tree_refresh_status
         try:
             url = f"{VIS_DOMAIN}api/categoryitem/{node['id']}.json"
-            res = requests.get(
+            res = sim.state.session.get(
                 url,
                 params={"pageindex": "1", "size": "1", "userId": sim.config.user_id},
                 headers=sim.config.headers,
@@ -313,8 +270,12 @@ def _fetch_leaf_counts(tree):
         except Exception as e:
             node["count"] = 0
             print(f">>> [Source Tree] Count fetch failed for {node['id']}: {e}")
+        finally:
+            with status_lock:
+                source_tree_refresh_status["done"] += 1
 
-        source_tree_refresh_status["done"] += 1
+    with ThreadPoolExecutor(max_workers=8) as executor:
+        executor.map(fetch_count, leaf_nodes)
 
     return tree
 
@@ -327,7 +288,13 @@ def refresh_source_tree_bg():
 
     try:
         ensure_authenticated()
-        tree = _parse_source_tree_txt()
+        if os.path.exists(VOD_SOURCE_TREE_CACHE_FILE):
+            with open(VOD_SOURCE_TREE_CACHE_FILE, "r", encoding="utf-8") as f:
+                cache_data = json.load(f)
+                tree = cache_data.get("tree", [])
+        else:
+            raise Exception("No cached source tree structure found to refresh.")
+
         tree = _fetch_leaf_counts(tree)
 
         import time as _time
@@ -348,7 +315,7 @@ def refresh_source_tree_bg():
 # 3. TVBox Config & API Handlers
 # ==========================================
 
-@app.get("/config")
+@app.get("/config") #待修改
 async def get_tvbox_config(request: Request):
     api_url = str(request.base_url) + "api/vod"
     
@@ -416,20 +383,14 @@ async def handle_tvbox_request(request: Request):
                 
                 # B. 单个电影资源：使用延迟加载链接，避免一次性生成导致的高频认证失败
                 if item_type == "vod":
-                    # 查询电影的真实名字和内容介绍
-                    params_vod = {
-                        "Action": "vodInfoById",
-                        "vodId": vod_id
-                    }
-                    res_vod = sim.state.session.get(data_url, params=params_vod, headers=sim.config.headers, timeout=10)
-                    vod_data = parse_epg_json(res_vod.text)
-                    result_vod = vod_data.get("result", {})
+                    result_vod = sim.get_vod_info(vod_id) or {}
                     
                     play_url = vod_id
                     name = result_vod.get("name") or f"{item_code} (电影)"
                     content = result_vod.get("introduce") or "热播大片专区"
                     
-                    pic_url = poster_cache.get(current_id) or (str(request.base_url) + "pics/default_poster.jpg")
+                    with poster_lock:
+                        pic_url = poster_cache.get(current_id) or (str(request.base_url) + "pics/default_poster.jpg")
                     detail_list.append({
                         "vod_id": current_id,
                         "vod_name": name,
@@ -443,20 +404,13 @@ async def handle_tvbox_request(request: Request):
                     
                 # C. 电视剧资源：遍历分集列表，统一封装为代理接口
                 elif item_type == "series":
-                    params_series = {
-                        "Action": "seriesInfoById",
-                        "seriseId": vod_id,
-                        "posterflag": "2",
-                        "displayflag": "1",
-                        "posteridx": "1"
-                    }
-                    res_s = sim.state.session.get(data_url, params=params_series, headers=sim.config.headers, timeout=10)
-                    s_data = parse_epg_json(res_s.text)
-                    result_series = s_data.get("result", {})
+                    series_info = sim.get_series_info(vod_id)
+                    if not series_info:
+                        continue
                     
-                    name = result_series.get("name") or f"{item_code} (电视剧)"
-                    content = result_series.get("introduce") or "热播剧集专区"
-                    episode_list = result_series.get("episodeList", [])
+                    name = series_info.get("name") or f"{item_code} (电视剧)"
+                    content = series_info.get("introduce") or "热播剧集专区"
+                    episode_list = series_info.get("episodes", [])
                     
                     ep_play_urls = []
                     for idx, ep in enumerate(episode_list):
@@ -474,7 +428,8 @@ async def handle_tvbox_request(request: Request):
                             play_url = ep_id
                             ep_play_urls.append(f"第{ep_num}集${play_url}")
                         
-                    pic_url = poster_cache.get(current_id) or (str(request.base_url) + "pics/default_poster.jpg")
+                    with poster_lock:
+                        pic_url = poster_cache.get(current_id) or (str(request.base_url) + "pics/default_poster.jpg")
                     detail_list.append({
                         "vod_id": current_id,
                         "vod_name": name,
@@ -622,7 +577,8 @@ async def handle_tvbox_request(request: Request):
                                 pic_url = str(request.base_url) + "pics/default_poster.jpg"
                             
                             item_id = f"{item_type}_{item_code}"
-                            poster_cache[item_id] = pic_url
+                            with poster_lock:
+                                poster_cache[item_id] = pic_url
                             
                             vod_list.append({
                                 "vod_id": item_id,
@@ -719,28 +675,9 @@ async def play_redirect(request: Request, vod_id: str = None, url: str = None, v
     if vod_id:
         try:
             ensure_authenticated()
-            data_url = f"{sim.state.epg_base_url}/EPG/jsp/gdhdpublic/Ver.2/common/data.jsp"
-            
-            # 1. 模拟鉴权动作 (Action=serviceAuth)
-            params_auth = {
-                "Action": "serviceAuth",
-                "progId": vod_id,
-                "contentType": "1"
-            }
-            sim.state.session.get(data_url, params=params_auth, headers=sim.config.headers, timeout=10)
-            
-            # 2. 获取真正的单播播放地址 (Action=vodInfoById)
-            params_info = {
-                "Action": "vodInfoById",
-                "vodId": vod_id
-            }
-            res = sim.state.session.get(data_url, params=params_info, headers=sim.config.headers, timeout=10)
-            data = parse_epg_json(res.text)
-            media_url = data.get("result", {}).get("mediaUrl")
-            
+            media_url = sim.get_vod_play_url(vod_id)
             if media_url:
-                clean_url = media_url.split("?")[0]
-                target_url = clean_url
+                target_url = media_url.split("?")[0]
         except Exception as e:
             print(f">>> [Resolver] Error resolving play URL for vod_id {vod_id}: {e}")
             
@@ -894,7 +831,7 @@ async def save_vod_filters(filters: dict):
 
 @app.get("/api/vod-source-tree")
 async def get_vod_source_tree():
-    """Return cached category tree (with counts). Falls back to txt-parsed tree if no cache yet."""
+    """Return cached category tree (with counts)."""
     if os.path.exists(VOD_SOURCE_TREE_CACHE_FILE):
         try:
             with open(VOD_SOURCE_TREE_CACHE_FILE, "r", encoding="utf-8") as f:
@@ -910,10 +847,8 @@ async def get_vod_source_tree():
         except Exception as e:
             print(f">>> [Source Tree] Cache read error: {e}")
 
-    # No cache yet — return txt structure without counts
-    tree = _parse_source_tree_txt()
     return JSONResponse(content={
-        "tree": tree,
+        "tree": [],
         "refreshing": source_tree_refresh_status["refreshing"],
         "done": source_tree_refresh_status["done"],
         "total": source_tree_refresh_status["total"],

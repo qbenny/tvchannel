@@ -94,6 +94,23 @@ def load_stb_config() -> dict:
         "des_key": ""
     }
 
+def parse_epg_json(text: str) -> dict:
+    """
+    用于解析 EPG 服务器非标准 JSON 格式 (例如单引号键值、被圆括号包裹等)
+    """
+    try:
+        return json.loads(text)
+    except Exception:
+        pass
+    try:
+        cleaned = text.strip()
+        if cleaned.startswith('(') and cleaned.endswith(')'):
+            cleaned = cleaned[1:-1].strip()
+        return ast.literal_eval(cleaned)
+    except Exception:
+        return {}
+
+
 # Attempt to import Cryptodome for DES
 try:
     from Crypto.Cipher import DES
@@ -475,19 +492,7 @@ class STBSimulator:
         """
         用于解析 EPG 服务器非标准 JSON 格式 (例如单引号键值、被圆括号包裹等)
         """
-        try:
-            import json
-            return json.loads(text)
-        except Exception:
-            pass
-        try:
-            cleaned = text.strip()
-            if cleaned.startswith('(') and cleaned.endswith(')'):
-                cleaned = cleaned[1:-1].strip()
-            return ast.literal_eval(cleaned)
-        except Exception as e:
-            self.logger.error("解析 EPG 非标准 JSON 响应失败: %s. 响应正文片段: %s", e, text[:200])
-            return {}
+        return parse_epg_json(text)
 
     def get_vod_list(self, category_id: str, length: int = 10) -> list:
         """
@@ -533,6 +538,27 @@ class STBSimulator:
         except Exception as e:
             self.logger.error("获取点播列表失败: %s", e)
             return []
+
+    def get_vod_info(self, vod_id: str) -> Optional[dict]:
+        """
+        获取点播 (VOD) 节目的详细信息 (包含名称、介绍、播放链接等)
+        """
+        if not self.state.is_authenticated:
+            self.logger.error("未认证，无法获取点播信息。")
+            return None
+
+        data_url = f"{self.state.epg_base_url}/EPG/jsp/gdhdpublic/Ver.2/common/data.jsp"
+        params = {
+            "Action": "vodInfoById",
+            "vodId": vod_id
+        }
+        try:
+            res = self.state.session.get(data_url, params=params, headers=self.config.headers, timeout=10)
+            res_data = self._parse_epg_json(res.text)
+            return res_data.get("result")
+        except Exception as e:
+            self.logger.error("拉取 VOD 详细信息时发生异常: %s", e)
+            return None
 
     def get_vod_play_url(self, telecom_code_or_id: str) -> Optional[str]:
         """
@@ -583,22 +609,12 @@ class STBSimulator:
 
         # 2. 模拟拉取节目详细信息与 RTSP 播放地址流程 (Action=vodInfoById)
         self.logger.info("正在获取 VOD 媒体播放地址 (Action=vodInfoById)...")
-        params_info = {
-            "Action": "vodInfoById",
-            "vodId": vod_id
-        }
-        try:
-            res = self.state.session.get(data_url, params=params_info, headers=self.config.headers, timeout=10)
-            res_data = self._parse_epg_json(res.text)
-            media_url = res_data.get("result", {}).get("mediaUrl")
-            if media_url:
-                self.logger.info("成功解析出点播 RTSP 播放地址!")
-                return media_url
-            else:
-                self.logger.error("服务器响应结果中未包含有效的 mediaUrl，可能鉴权未通过或非免费节目。")
-                return None
-        except Exception as e:
-            self.logger.error("拉取 VOD 详细信息时发生异常: %s", e)
+        result = self.get_vod_info(vod_id)
+        if result and "mediaUrl" in result:
+            self.logger.info("成功解析出点播 RTSP 播放地址!")
+            return result["mediaUrl"]
+        else:
+            self.logger.error("服务器响应结果中未包含有效的 mediaUrl，可能鉴权未通过或非免费节目。")
             return None
 
     def get_tvod_program_list(self, channel_id: str, date_str: Optional[str] = None) -> list:
@@ -704,6 +720,7 @@ class STBSimulator:
             series_info = {
                 "id": series_id,
                 "name": result.get("name", ""),
+                "introduce": result.get("introduce", ""),
                 "episode_count": result.get("episodeCount", len(episodes)),
                 "episodes": episodes
             }

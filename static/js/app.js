@@ -78,8 +78,13 @@ const app = createApp({
                 ip_address: ''
             },
             resolvedIp: '',
-            testingLogin: false,
             savingStb: false,
+            
+            // Log Display State
+            logs: [],
+            logLevelFilter: 'ALL',
+            logAutoScroll: true,
+            logPollTimer: null,
             
             // Plate 2: Dynamic Category Map (CMS)
             vodCategories: [],       // List of customizable dynamic categories
@@ -110,6 +115,18 @@ const app = createApp({
     },
     
     computed: {
+        filteredLogs() {
+            if (this.logLevelFilter === 'ALL') {
+                return this.logs;
+            }
+            const levels = ['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'];
+            const minIdx = levels.indexOf(this.logLevelFilter);
+            return this.logs.filter(log => {
+                const idx = levels.indexOf(log.level);
+                return idx >= minIdx;
+            });
+        },
+
         // Flat list active for current active sub-category filters
         activeFilterList() {
             const currentCat = this.vodCategories.find(c => c.id === this.activeCategoryId);
@@ -169,6 +186,11 @@ const app = createApp({
                     this.initTabsSortable();
                 });
             }
+            if (newTab === 'stb') {
+                this.startLogPolling();
+            } else {
+                this.stopLogPolling();
+            }
         }
     },
     
@@ -177,6 +199,9 @@ const app = createApp({
         this.fetchStbConfig();
         this.fetchVodCategories();
         this.fetchSourceTree();
+        if (this.activeTab === 'stb') {
+            this.startLogPolling();
+        }
     },
     
     mounted() {
@@ -184,6 +209,10 @@ const app = createApp({
             this.initSortable();
             this.initTabsSortable();
         });
+    },
+
+    beforeUnmount() {
+        this.stopLogPolling();
     },
     
     methods: {
@@ -231,6 +260,61 @@ const app = createApp({
             }
         },
         
+        // Log Management methods
+        async fetchLogs() {
+            try {
+                const response = await fetch('/api/logs');
+                const data = await response.json();
+                this.logs = data;
+                if (this.logAutoScroll) {
+                    this.$nextTick(() => {
+                        this.scrollLogsToBottom();
+                    });
+                }
+            } catch (error) {
+                console.error("Failed to load logs:", error);
+            }
+        },
+
+        async clearLogs() {
+            try {
+                const response = await fetch('/api/logs/clear', { method: 'POST' });
+                const res = await response.json();
+                if (response.ok && res.status === 'success') {
+                    this.logs = [];
+                    this.showToast(res.message);
+                } else {
+                    this.showToast("清空日志失败", "error");
+                }
+            } catch (error) {
+                console.error("Clear logs error:", error);
+                this.showToast("通信异常，无法连接日志接口", "error");
+            }
+        },
+
+        startLogPolling() {
+            this.fetchLogs();
+            if (!this.logPollTimer) {
+                this.logPollTimer = setInterval(() => {
+                    this.fetchLogs();
+                }, 2000);
+            }
+        },
+
+        stopLogPolling() {
+            if (this.logPollTimer) {
+                clearInterval(this.logPollTimer);
+                this.logPollTimer = null;
+            }
+        },
+
+        scrollLogsToBottom() {
+            const container = this.$refs.logContainer;
+            if (container) {
+                container.scrollTop = container.scrollHeight;
+            }
+        },
+        
         async saveStbConfig() {
             this.savingStb = true;
             try {
@@ -240,9 +324,17 @@ const app = createApp({
                     body: JSON.stringify(this.stbConfig)
                 });
                 const res = await response.json();
-                if (response.ok && res.status === 'success') {
-                    this.showToast(res.message, "success");
+                if (response.ok) {
+                    if (res.status === 'success') {
+                        this.showToast(res.message, "success");
+                    } else if (res.status === 'warning') {
+                        this.showToast(res.message, "error");
+                    } else {
+                        this.showToast(res.message || "保存配置失败", "error");
+                    }
                     await this.fetchStbConfig();
+                    // Fetch logs immediately so the login test details appear in the log viewer
+                    await this.fetchLogs();
                 } else {
                     this.showToast(res.message || "保存配置失败", "error");
                 }
@@ -251,24 +343,6 @@ const app = createApp({
                 this.showToast("通信异常，无法连接后端接口", "error");
             } finally {
                 this.savingStb = false;
-            }
-        },
-        
-        async testLogin() {
-            this.testingLogin = true;
-            try {
-                const response = await fetch('/api/test-login', { method: 'POST' });
-                const res = await response.json();
-                if (response.ok && res.status === 'success') {
-                    this.showToast(res.message, "success");
-                } else {
-                    this.showToast(res.message || "鉴权登录失败，请检查参数", "error");
-                }
-            } catch (error) {
-                console.error("Test login error:", error);
-                this.showToast("连接网关鉴权超时，请检查路由网段", "error");
-            } finally {
-                this.testingLogin = false;
             }
         },
         

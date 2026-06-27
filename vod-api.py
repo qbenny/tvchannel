@@ -1,5 +1,7 @@
 import os
+import sys
 import json
+import re
 import requests
 from fastapi import FastAPI, Request, Response
 from fastapi.responses import JSONResponse, RedirectResponse, FileResponse
@@ -7,7 +9,121 @@ from fastapi.staticfiles import StaticFiles
 import uvicorn
 import threading
 import time
+from collections import deque
 from contextlib import asynccontextmanager
+
+class MemoryLogBuffer:
+    def __init__(self, capacity=1000):
+        self.capacity = capacity
+        self.buffer = deque(maxlen=capacity)
+        self.lock = threading.Lock()
+        self.log_pattern = re.compile(r'^(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}) \[([A-Z]+)\] (.*)$')
+
+    def write_line(self, line: str, default_level: str):
+        # Strip ANSI escape sequences (colors)
+        line = re.sub(r'\x1b\[[0-9;]*[a-zA-Z]', '', line)
+        line = line.strip()
+        if not line:
+            return
+        
+        # Filter out log polling and static assets to prevent log flooding
+        if "/api/logs" in line or "/static/" in line:
+            return
+
+        match = self.log_pattern.match(line)
+        if match:
+            log_time, log_level, log_msg = match.groups()
+            self._add_log(log_time, log_level, log_msg)
+        else:
+            # Check for keywords to elevate level
+            level = default_level
+            lower_line = line.lower()
+            if "error" in lower_line or "failed" in lower_line or "exception" in lower_line:
+                level = "ERROR"
+            elif "warn" in lower_line:
+                level = "WARNING"
+            elif "debug" in lower_line:
+                level = "DEBUG"
+            
+            now_str = time.strftime("%Y-%m-%d %H:%M:%S")
+            self._add_log(now_str, level, line)
+
+    def _add_log(self, log_time: str, level: str, message: str):
+        with self.lock:
+            self.buffer.append({
+                "time": log_time,
+                "level": level,
+                "message": message
+            })
+
+    def get_logs(self, level_filter: str = "ALL"):
+        with self.lock:
+            logs = list(self.buffer)
+        
+        if level_filter == "ALL":
+            return logs
+            
+        levels = ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
+        try:
+            min_idx = levels.index(level_filter)
+        except ValueError:
+            return logs
+            
+        filtered = []
+        for log in logs:
+            log_level = log.get("level", "INFO")
+            try:
+                log_idx = levels.index(log_level)
+            except ValueError:
+                log_idx = 1
+            if log_idx >= min_idx:
+                filtered.append(log)
+        return filtered
+
+    def clear(self):
+        with self.lock:
+            self.buffer.clear()
+
+class InterceptStream:
+    def __init__(self, original_stream, buffer_obj, default_level):
+        self.original_stream = original_stream
+        self.buffer_obj = buffer_obj
+        self.default_level = default_level
+        self._line_buffer = ""
+
+    def write(self, s):
+        try:
+            self.original_stream.write(s)
+        except Exception:
+            pass
+            
+        try:
+            self._line_buffer += s
+            while "\n" in self._line_buffer:
+                line, self._line_buffer = self._line_buffer.split("\n", 1)
+                self.buffer_obj.write_line(line, self.default_level)
+        except Exception:
+            pass
+        return len(s)
+
+    def flush(self):
+        try:
+            self.original_stream.flush()
+        except Exception:
+            pass
+
+    def isatty(self):
+        try:
+            return self.original_stream.isatty()
+        except Exception:
+            return False
+
+    def __getattr__(self, name):
+        return getattr(self.original_stream, name)
+
+log_buffer = MemoryLogBuffer()
+sys.stdout = InterceptStream(sys.stdout, log_buffer, "INFO")
+sys.stderr = InterceptStream(sys.stderr, log_buffer, "ERROR")
 
 from run_simulator import STBDeviceConfig, STBSimulator, load_stb_config, parse_epg_json
 
@@ -16,7 +132,6 @@ async def lifespan(app: FastAPI):
     # Startup actions
     load_poster_cache()
     login_sim()
-    start_heartbeat_thread()
     yield
 
 app = FastAPI(lifespan=lifespan)
@@ -48,12 +163,20 @@ config_stb = STBDeviceConfig(
 )
 sim = STBSimulator(config=config_stb)
 
+heartbeat_thread = None
+heartbeat_lock = threading.Lock()
+
 def login_sim() -> bool:
+    if not sim.config.user_id or not sim.config.base_url:
+        print(">>> [STB Simulator] Core authentication parameters (user_id or base_url) are missing. Skipping automatic login.")
+        sim.state.is_authenticated = False
+        return False
     try:
         print(">>> [STB Simulator] Logging in via STBSimulator.login()...")
         success = sim.login()
         if success:
             print(f">>> [STB Simulator] Login successful. EPG Gateway: {sim.state.epg_base_url}")
+            start_heartbeat_thread()
             return True
         else:
             print(">>> [STB Simulator] STBSimulator.login() returned False.")
@@ -69,20 +192,25 @@ def ensure_authenticated():
         login_sim()
 
 def start_heartbeat_thread():
-    sim.state.heartbeat_interval = 60  # Keep session alive every 60 seconds
-    
-    def run_heartbeat():
-        print(">>> [Heartbeat Thread] Started.")
-        while True:
-            try:
-                if sim.state.is_authenticated:
-                    sim.keep_alive()
-            except Exception as e:
-                print(f">>> [Heartbeat Thread] Error: {e}")
-            time.sleep(5)
+    global heartbeat_thread
+    with heartbeat_lock:
+        if heartbeat_thread is not None and heartbeat_thread.is_alive():
+            return
             
-    thread = threading.Thread(target=run_heartbeat, daemon=True)
-    thread.start()
+        sim.state.heartbeat_interval = 60  # Keep session alive every 60 seconds
+        
+        def run_heartbeat():
+            print(">>> [Heartbeat Thread] Started.")
+            while True:
+                try:
+                    if sim.state.is_authenticated:
+                        sim.keep_alive()
+                except Exception as e:
+                    print(f">>> [Heartbeat Thread] Error: {e}")
+                time.sleep(5)
+                
+        heartbeat_thread = threading.Thread(target=run_heartbeat, daemon=True)
+        heartbeat_thread.start()
 
 # ==========================================
 # 2. Local Fallback Database Parsing
@@ -315,7 +443,7 @@ def refresh_source_tree_bg():
 # 3. TVBox Config & API Handlers
 # ==========================================
 
-@app.get("/config") #待修改
+@app.get("/zjvod") #待修改
 async def get_tvbox_config(request: Request):
     api_url = str(request.base_url) + "api/vod"
     
@@ -735,21 +863,17 @@ async def save_stb_config(config_in: dict):
         sim.config = config_stb
         sim.state.is_authenticated = False # Force re-auth
         
-        return {"status": "success", "message": "机顶盒配置已保存并重载！", "ip": config_stb.ip_address}
+        # Automatically test login if core parameters are present
+        if config_stb.user_id and config_stb.base_url:
+            login_success = login_sim()
+            if login_success:
+                return {"status": "success", "message": "配置保存成功，且模拟登录验证成功！", "ip": config_stb.ip_address}
+            else:
+                return {"status": "warning", "message": "配置保存成功，但模拟登录失败，请检查参数或网络连通性。", "ip": config_stb.ip_address}
+        
+        return {"status": "success", "message": "配置保存成功！核心参数为空，暂未运行登录测试。", "ip": config_stb.ip_address}
     except Exception as e:
         return JSONResponse(content={"status": "error", "message": f"保存配置失败: {str(e)}"}, status_code=500)
-
-@app.post("/api/test-login")
-async def test_login():
-    try:
-        sim.state.is_authenticated = False # Reset auth to test fresh
-        success = sim.login()
-        if success:
-            return {"status": "success", "message": "模拟登录成功！EPG 网关已验证成功。"}
-        else:
-            return {"status": "error", "message": "模拟登录失败，请检查机顶盒凭证参数或网关连通性。"}
-    except Exception as e:
-        return JSONResponse(content={"status": "error", "message": f"登录测试出现异常: {str(e)}"}, status_code=500)
 
 @app.get("/api/vod-categories")
 async def get_vod_categories():
@@ -879,5 +1003,15 @@ async def get_source_tree_status():
     return JSONResponse(content=source_tree_refresh_status)
 
 
+@app.get("/api/logs")
+async def get_api_logs(level: str = "ALL"):
+    return log_buffer.get_logs(level)
+
+@app.post("/api/logs/clear")
+async def clear_api_logs():
+    log_buffer.clear()
+    return {"status": "success", "message": "日志已清空"}
+
+
 if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=8080)
+    uvicorn.run(app, host="0.0.0.0", port=8880)

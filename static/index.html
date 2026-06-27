@@ -93,13 +93,9 @@
                             </div>
                         </div>
                         <div class="form-actions">
-                            <button class="btn btn-secondary" @click="testLogin" :disabled="testingLogin">
-                                <span class="spinner" v-if="testingLogin"></span>
-                                {{ testingLogin ? '正在测试...' : '🔌 测试鉴权登录' }}
-                            </button>
-                            <button class="btn btn-primary" @click="saveStbConfig" :disabled="savingStb">
+                            <button class="btn btn-primary" @click="saveStbConfig" :disabled="savingStb" style="width: 100%;">
                                 <span class="spinner" v-if="savingStb"></span>
-                                {{ savingStb ? '正在保存...' : '💾 保存并重载' }}
+                                {{ savingStb ? '正在保存并验证...' : '💾 保存配置并测试登录' }}
                             </button>
                         </div>
                     </div>
@@ -126,6 +122,40 @@
                                 <span class="status-label">说明</span>
                                 <p class="status-desc">机顶盒配置用于与电信 EPG 网关建立安全链路以获取直播地址及点播图片、播放 URL。建议直接保持 IP 地址为空，以允许程序根据宿主机当前连通 EPG 节点的路由状况自动生成正确的源 IP。</p>
                             </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 日志输出显示面板 -->
+                <div class="card log-card">
+                    <div class="card-header">
+                        <div class="header-left">
+                            <h3>系统运行日志</h3>
+                        </div>
+                        <div class="log-actions">
+                            <select v-model="logLevelFilter" class="log-select">
+                                <option value="ALL">全部日志 (ALL)</option>
+                                <option value="DEBUG">调试 (DEBUG及以上)</option>
+                                <option value="INFO">信息 (INFO及以上)</option>
+                                <option value="WARNING">警告 (WARN及以上)</option>
+                                <option value="ERROR">错误 (ERROR及以上)</option>
+                            </select>
+                            <button class="btn btn-secondary btn-sm" @click="clearLogs">
+                                🗑️ 清空日志
+                            </button>
+                            <label class="auto-scroll-label">
+                                <input type="checkbox" v-model="logAutoScroll"> 自动滚动
+                            </label>
+                        </div>
+                    </div>
+                    <div class="log-container" ref="logContainer">
+                        <div v-if="filteredLogs.length === 0" class="log-empty">
+                            暂无相关运行日志
+                        </div>
+                        <div v-else v-for="(log, idx) in filteredLogs" :key="idx" :class="['log-item', log.level.toLowerCase()]">
+                            <span class="log-time">{{ log.time }}</span>
+                            <span :class="['log-level-badge', log.level.toLowerCase()]">{{ log.level }}</span>
+                            <span class="log-message">{{ log.message }}</span>
                         </div>
                     </div>
                 </div>

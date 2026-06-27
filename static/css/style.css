@@ -1191,3 +1191,231 @@ body {
 .fade-leave-to {
     opacity: 0;
 }
+
+/* ==========================================
+ * 5. Log Console Styles
+ * ========================================== */
+.log-card {
+    margin-top: 24px;
+}
+
+.log-card .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.log-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.log-select {
+    background: var(--bg-sidebar);
+    border: 1px solid var(--border-color);
+    color: var(--text-main);
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 14px;
+    outline: none;
+    cursor: pointer;
+    transition: border-color var(--transition-speed);
+}
+
+.log-select:focus {
+    border-color: var(--color-primary);
+}
+
+.btn-sm {
+    padding: 6px 12px !important;
+    font-size: 13px !important;
+    border-radius: 8px !important;
+}
+
+.auto-scroll-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    color: var(--text-muted);
+    cursor: pointer;
+    user-select: none;
+}
+
+.log-container {
+    background: #0f172a;
+    color: #e2e8f0;
+    border-radius: 12px;
+    padding: 16px;
+    height: 350px;
+    overflow-y: auto;
+    font-family: 'Consolas', 'Fira Code', Courier, monospace;
+    font-size: 13px;
+    line-height: 1.6;
+    border: 1px solid var(--border-color);
+}
+
+/* Custom Scrollbar for log container */
+.log-container::-webkit-scrollbar {
+    width: 8px;
+}
+.log-container::-webkit-scrollbar-track {
+    background: #0f1724;
+    border-radius: 4px;
+}
+.log-container::-webkit-scrollbar-thumb {
+    background: #334155;
+    border-radius: 4px;
+}
+.log-container::-webkit-scrollbar-thumb:hover {
+    background: #475569;
+}
+
+.log-empty {
+    color: #64748b;
+    text-align: center;
+    padding-top: 150px;
+    font-style: italic;
+}
+
+.log-item {
+    padding: 4px 8px;
+    border-radius: 4px;
+    margin-bottom: 4px;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    word-break: break-all;
+    transition: background-color 0.2s;
+}
+
+.log-item:hover {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.log-time {
+    color: #64748b;
+    flex-shrink: 0;
+    user-select: none;
+}
+
+.log-level-badge {
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-weight: 600;
+    font-size: 11px;
+    text-transform: uppercase;
+    flex-shrink: 0;
+    user-select: none;
+    text-align: center;
+    min-width: 60px;
+}
+
+/* Colors for levels */
+.log-level-badge.debug {
+    background: rgba(148, 163, 184, 0.15);
+    color: #94a3b8;
+}
+.log-level-badge.info {
+    background: rgba(99, 102, 241, 0.15);
+    color: #818cf8;
+}
+.log-level-badge.warning {
+    background: rgba(245, 158, 11, 0.15);
+    color: #fbbf24;
+}
+.log-level-badge.error, .log-level-badge.critical {
+    background: rgba(239, 68, 68, 0.15);
+    color: #f87171;
+}
+
+/* Line colors */
+.log-item.error, .log-item.critical {
+    background: rgba(239, 68, 68, 0.05);
+    border-left: 3px solid #ef4444;
+}
+.log-item.warning {
+    background: rgba(245, 158, 11, 0.03);
+    border-left: 3px solid #f59e0b;
+}
+.log-item.info {
+    border-left: 3px solid transparent;
+}
+.log-item.debug {
+    color: #64748b;
+    border-left: 3px solid transparent;
+}
+
+/* ==========================================
+ * Light Theme Overrides for Log Console
+ * ========================================== */
+[data-theme="light"] .log-container {
+    background: #f8fafc;
+    color: #1e293b;
+    border-color: var(--border-color);
+}
+
+[data-theme="light"] .log-container::-webkit-scrollbar-track {
+    background: var(--scroll-track);
+}
+
+[data-theme="light"] .log-container::-webkit-scrollbar-thumb {
+    background: var(--scroll-thumb);
+}
+
+[data-theme="light"] .log-container::-webkit-scrollbar-thumb:hover {
+    background: var(--scroll-thumb-hover);
+}
+
+[data-theme="light"] .log-empty {
+    color: #94a3b8;
+}
+
+[data-theme="light"] .log-item:hover {
+    background: rgba(0, 0, 0, 0.03);
+}
+
+[data-theme="light"] .log-time {
+    color: #94a3b8;
+}
+
+[data-theme="light"] .log-item.debug {
+    color: #94a3b8;
+}
+
+/* Light theme level badge overrides */
+[data-theme="light"] .log-level-badge.debug {
+    background: rgba(100, 116, 139, 0.1);
+    color: #64748b;
+}
+
+[data-theme="light"] .log-level-badge.info {
+    background: rgba(79, 70, 229, 0.1);
+    color: #4f46e5;
+}
+
+[data-theme="light"] .log-level-badge.warning {
+    background: rgba(217, 119, 6, 0.15);
+    color: #b45309;
+}
+
+[data-theme="light"] .log-level-badge.error,
+[data-theme="light"] .log-level-badge.critical {
+    background: rgba(220, 38, 38, 0.1);
+    color: #dc2626;
+}
+
+/* Light theme log line color overrides */
+[data-theme="light"] .log-item.error,
+[data-theme="light"] .log-item.critical {
+    background: rgba(220, 38, 38, 0.02);
+    border-left: 3px solid #dc2626;
+}
+
+[data-theme="light"] .log-item.warning {
+    background: rgba(217, 119, 6, 0.01);
+    border-left: 3px solid #d97706;
+}

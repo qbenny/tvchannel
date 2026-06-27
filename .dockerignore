@@ -1,0 +1,25 @@
+# Git 版本控制（最大节省，.git 本身可能几十MB）
+.git
+.github
+.gitignore
+
+# Python 运行时缓存
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# 运行时数据目录（通过 volume 挂载，不打入镜像）
+data/
+
+# 开发/调试目录
+sample/
+scratch/
+research_and_debug/
+
+# Docker 自身
+Dockerfile
+.dockerignore
+
+# 文档
+readme.md

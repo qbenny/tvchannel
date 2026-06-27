@@ -6,7 +6,7 @@
     <title>IPTV & VOD 管理面板</title>
     <!-- 引入谷歌字体 Outfit -->
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/style.css?v=1.4">
+    <link rel="stylesheet" href="css/style.css?v=1.5">
     <!-- 本地依赖库 -->
     <script src="js/vue.global.js"></script>
     <script src="js/Sortable.min.js"></script>
@@ -47,6 +47,20 @@
                     <h1>{{ tabTitles[activeTab] }}</h1>
                     <p class="header-subtitle">{{ tabSubtitles[activeTab] }}</p>
                 </div>
+                <transition name="fade-slide">
+                    <div v-if="activeTab === 'vod'" class="api-links-panel">
+                        <div class="api-link-item">
+                            <span class="api-link-label">📦 TVBox 订阅</span>
+                            <code class="api-link-url" :title="vodApiLinks.tvbox">{{ vodApiLinks.tvbox }}</code>
+                            <button class="api-copy-btn" @click="copyToClipboard(vodApiLinks.tvbox)" title="复制 TVBox 订阅链接">📋</button>
+                        </div>
+                        <div class="api-link-item">
+                            <span class="api-link-label">🔗 VOD API</span>
+                            <code class="api-link-url" :title="vodApiLinks.api">{{ vodApiLinks.api }}</code>
+                            <button class="api-copy-btn" @click="copyToClipboard(vodApiLinks.api)" title="复制 VOD API 链接">📋</button>
+                        </div>
+                    </div>
+                </transition>
             </header>
 
             <!-- 提示信息通知组件 -->

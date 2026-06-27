@@ -237,6 +237,11 @@ body {
 
 .top-header {
     margin-bottom: 10px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 24px;
+    flex-wrap: wrap;
 }
 
 .header-title h1 {
@@ -1455,4 +1460,92 @@ body {
 [data-theme="light"] .log-item.warning {
     background: rgba(217, 119, 6, 0.01);
     border-left: 3px solid #d97706;
+}
+
+/* ==========================================
+ * VOD API Links Panel (top-right on VOD tab)
+ * ========================================== */
+
+.api-links-panel {
+    display: flex;
+    flex-direction: row;
+    gap: 12px;
+    align-items: center;
+    flex-shrink: 0;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+}
+
+.api-link-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 10px 16px;
+    backdrop-filter: blur(var(--glass-blur));
+    -webkit-backdrop-filter: blur(var(--glass-blur));
+    transition: border-color var(--transition-speed) var(--transition-ease),
+                box-shadow var(--transition-speed) var(--transition-ease);
+}
+
+.api-link-item:hover {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px rgba(var(--color-primary-rgb), 0.12);
+}
+
+.api-link-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-muted);
+    white-space: nowrap;
+}
+
+.api-link-url {
+    font-family: 'Courier New', Consolas, monospace;
+    font-size: 13px;
+    color: var(--color-secondary);
+    background: transparent;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 300px;
+    flex: 1;
+    min-width: 0;
+}
+
+.api-copy-btn {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 2px 4px;
+    border-radius: 6px;
+    font-size: 14px;
+    line-height: 1;
+    transition: transform 0.15s ease, background var(--transition-speed) var(--transition-ease);
+    flex-shrink: 0;
+    opacity: 0.6;
+}
+
+.api-copy-btn:hover {
+    transform: scale(1.2);
+    background: var(--border-color);
+    opacity: 1;
+}
+
+.api-copy-btn:active {
+    transform: scale(0.95);
+}
+
+/* Fade-slide transition for the API links panel */
+.fade-slide-enter-active,
+.fade-slide-leave-active {
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.fade-slide-enter-from,
+.fade-slide-leave-to {
+    opacity: 0;
+    transform: translateY(-8px);
 }

@@ -175,6 +175,15 @@ const app = createApp({
             };
             
             return cloneTree.filter(filterNode);
+        },
+
+        // Generate VOD API links based on current page origin
+        vodApiLinks() {
+            const origin = window.location.origin;
+            return {
+                tvbox: `${origin}/zjvod`,
+                api: `${origin}/api/vod`
+            };
         }
     },
     

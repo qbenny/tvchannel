@@ -921,7 +921,10 @@ async def handle_tvbox_request(request: Request):
                         if not ep_id or ep_id == "缺" or "缺" in ep_id or not ep_id.isdigit():
                             ep_play_urls.append(f"第{ep_num}集(缺)$")
                         else:
-                            play_url = ep_id
+                            # Prefer telecom_code: it gets converted via vodIdByCode in get_vod_play_url,
+                            # which correctly resolves to a valid internal vodId (needed for series found
+                            # via search that have super-long numeric episode IDs not directly usable).
+                            play_url = ep.get("telecom_code") or ep_id
                             ep_play_urls.append(f"第{ep_num}集${play_url}")
                         
                     with poster_lock:

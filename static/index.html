@@ -243,7 +243,7 @@
                                     <p v-else-if="sourceTreeMeta.last_updated">
                                         数据来源：电信 VIS 服务器实时抓取，点击可展开子类
                                     </p>
-                                    <p v-else>从 <code>vod_catalog_tree.txt</code> 解析，点击刷新从电信服务器拉取实时数据</p>
+                                    <p v-else>暂无缓存，点击 ↻ 刷新从电信 VIS 服务器拉取实时数据</p>
                                 </div>
                                 <button class="btn-refresh-tree" @click="refreshSourceTree" :disabled="sourceTreeRefreshing" :class="{ spinning: sourceTreeRefreshing }" title="从电信 VIS 服务器重新抓取分类">
                                     ↻

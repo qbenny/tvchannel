@@ -181,9 +181,12 @@ class STBRuntimeState:
         self.is_authenticated: bool = False                 # 认证通过标志
         
         # 心跳控制
-        self.heartbeat_interval: int = 5                    # 为了便于测试，我们将默认的 600 秒心跳间隔缩短为 5 秒
+        self.heartbeat_interval: int = 600                  # 心跳间隔，与真实机顶盒 TVMSHeartbitInterval 一致
         self.last_heartbeat_time: float = 0.0               # 上一次心跳成功的时间戳
         self.heartbeat_fail_count: int = 0                  # 连续心跳失败次数
+        
+        self.vis_base_url: Optional[str] = None             # VIS VOD 服务器地址，登录后从 configUrl.min.js 解析
+        self.operator: Optional[str] = None                # 运营商: "telecom" 或 "unicom"，从 EPG 页面提取
 
     def update_heartbeat_timer(self):
         self.last_heartbeat_time = time.time()
@@ -257,6 +260,43 @@ class STBSimulator:
         self.logger.info("动态密文签名 (Authenticator) 已计算生成成功。")
         return auth_signature
 
+    def _resolve_vis_domain(self) -> Optional[str]:
+        """登录后从 configUrl.min.js 解析 VIS VOD 服务器地址。
+
+        机顶盒架构：EPG 页面的 <script> 块中定义 var operator = "telecom"，
+        然后加载 configUrl.min.js，其中根据 operator 选择 VIS 服务器：
+          telecom → 115.233.200.60:58000
+          unicom  → 124.160.41.2:8095
+        VIS API 完整路径为 http://{visEpgIp}/epg/
+        """
+        operator = self.state.operator or "telecom"
+
+        try:
+            url = f"{self.state.epg_base_url}/EPG/jsp/gdhdpublic/Ver.2/js/configUrl.min.js"
+            r = self.state.session.get(url, headers=self.config.headers, timeout=10)
+            if r.status_code == 200:
+                m = re.search(
+                    r'visEpgIp\s*=\s*["\'][^"\']*["\'].*?\?\s*["\']([^"\']+)["\']\s*:\s*["\']([^"\']+)["\']',
+                    r.text)
+                if m:
+                    unicom_ip = m.group(1)   # "124.160.41.2:8095"
+                    telecom_ip = m.group(2)  # "115.233.200.60:58000"
+                    vis_ip = unicom_ip if operator == "unicom" else telecom_ip
+                    vis_base_url = f"http://{vis_ip}/epg/"
+                    self.logger.info("VIS 服务器地址解析成功 (%s 线路): %s", operator, vis_base_url)
+                    print(f">>> [VIS Domain] Resolved ({operator}): {vis_base_url}")
+                    return vis_base_url
+                else:
+                    self.logger.warning("VIS 服务器地址正则匹配失败")
+                    print(">>> [VIS Domain] Regex match failed in configUrl.min.js")
+            else:
+                self.logger.warning("configUrl.min.js 获取失败 HTTP %d", r.status_code)
+                print(f">>> [VIS Domain] configUrl.min.js HTTP {r.status_code}")
+        except Exception as e:
+            self.logger.warning("VIS 服务器地址解析失败: %s", e)
+            print(f">>> [VIS Domain] Resolution error: {e}")
+        return None
+
     def login(self) -> bool:
         """
         执行完整的 IPTV 开机认证流
@@ -291,6 +331,12 @@ class STBSimulator:
 
             self.state.encrypt_token = token_match.group(1)
             self.logger.info("第一阶段临时 Token (EncryptToken): %s", self.state.encrypt_token)
+
+            # 2.5 从 authLoginHWCTC.jsp 响应中提取运营商类型
+            op_match = re.search(r'var\s+operator\s*=\s*["\'](\w+)["\']', res2.text)
+            if op_match:
+                self.state.operator = op_match.group(1)
+                self.logger.info("运营商类型: %s", self.state.operator)
 
             # 3. 动态算密并发送 ValidAuthentication 校验
             authenticator = self._generate_auth_signature()
@@ -342,6 +388,14 @@ class STBSimulator:
             self.state.update_heartbeat_timer()
             self.logger.info("========== 模拟机顶盒上线成功 ==========")
             self.logger.info("正式通行 Token (UserToken): %s", self.state.user_token)
+            
+            # 5. 解析 VIS VOD 服务器地址
+            self.state.vis_base_url = self._resolve_vis_domain()
+            if self.state.vis_base_url:
+                self.logger.info("VIS VOD 服务器: %s", self.state.vis_base_url)
+            else:
+                self.logger.warning("VIS VOD 服务器地址未获取到")
+            
             return True
 
         except Exception as e:
@@ -351,14 +405,19 @@ class STBSimulator:
 
     def keep_alive(self):
         """
-        心跳上报维持逻辑
+        心跳上报维持逻辑。
+        真实机顶盒 GetHeartBit 响应体格式示例：
+          [HeartBit]
+          UserValid=true
+          NextCallInterval=900
+        本方法会解析 UserValid 字段：若为 false 则立即清除认证状态触发重登录。
+        同时动态适配 NextCallInterval（服务器下发的推荐心跳间隔）。
         """
         if not self.state.is_authenticated:
             self.logger.warning("机顶盒当前处于离线状态，暂不发送心跳包。")
             return
 
         current_time = time.time()
-        # 判断时间片是否超出心跳周期 (5 秒)
         if current_time - self.state.last_heartbeat_time < self.state.heartbeat_interval:
             return
 
@@ -382,6 +441,23 @@ class STBSimulator:
             self._log_request("GET (心跳包)", heartbeat_url, res)
 
             if res.status_code == 200:
+                # 解析响应体中的 UserValid 和 NextCallInterval 字段
+                user_valid_match = re.search(r'UserValid\s*=\s*(true|false)', res.text, re.IGNORECASE)
+                if user_valid_match:
+                    user_valid = user_valid_match.group(1).lower() == 'true'
+                    if not user_valid:
+                        self.logger.warning("服务器返回 UserValid=false！会话 Token 已失效，清除认证状态以触发重登录。")
+                        self.state.clear_auth_state()
+                        return
+
+                interval_match = re.search(r'NextCallInterval\s*=\s*(\d+)', res.text)
+                if interval_match:
+                    server_interval = int(interval_match.group(1))
+                    if server_interval > 0 and server_interval != self.state.heartbeat_interval:
+                        self.logger.info("服务器下发推荐心跳间隔: %d 秒 (之前: %d 秒)，动态适配。",
+                                         server_interval, self.state.heartbeat_interval)
+                        self.state.heartbeat_interval = server_interval
+
                 self.state.update_heartbeat_timer()
                 self.logger.info("会话心跳刷新成功。状态维持中...")
             else:
@@ -817,7 +893,7 @@ if __name__ == "__main__":
                 print("="*70 + "\n")
 
         print("\n" + "="*50)
-        print("开始模拟心跳维持进程 (测试环境每 5 秒发送一次心跳)...")
+        print("开始模拟心跳维持进程 (每 600 秒发送一次心跳，与真实机顶盒一致)...")
         print("按 Ctrl+C 可随时退出测试")
         print("="*50 + "\n")
         

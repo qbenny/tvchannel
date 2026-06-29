@@ -1,4 +1,7 @@
-# Git 版本控制（最大节省，.git 本身可能几十MB）
+# 虚拟环境
+.venv/
+
+## Git 版本控制（最大节省，.git 本身可能几十MB）
 .git
 .github
 .gitignore
@@ -16,6 +19,7 @@ data/
 sample/
 scratch/
 research_and_debug/
+codebuddy/
 
 # Docker 自身
 Dockerfile

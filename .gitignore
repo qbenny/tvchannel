@@ -3,9 +3,15 @@ config.py
 stb_config.json
 data/stb_config.json
 data/poster_cache.json
+data/vis_sections_cache.json
+data/vod_source_tree_cache.json
 sample/
 research_and_debug/
 scratch/
+codebuddy/
+
+#虚拟环境
+.venv/
 
 # 顺便忽略 Python 运行时生成的缓存文件
 __pycache__/

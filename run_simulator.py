@@ -635,58 +635,79 @@ class STBSimulator:
     def get_vod_play_url(self, telecom_code_or_id: str) -> Optional[str]:
         """
         获取点播 (VOD) 节目的单播 RTSP 播放地址
+        支持 "ep_id$telecom_code" 双fallback格式：先用ep_id直连，失败再用telecom_code走vodIdByCode转换
         """
         if not self.state.is_authenticated:
             self.logger.error("未认证，无法获取点播播放地址。")
             return None
 
-        self.logger.info("========== 开始获取 VOD 播放地址: %s ==========", telecom_code_or_id)
+        # Parse dual-fallback format: "ep_id$telecom_code"
+        primary_id = telecom_code_or_id
+        fallback_code = None
+        if "$" in telecom_code_or_id:
+            parts = telecom_code_or_id.split("$", 1)
+            primary_id = parts[0]
+            fallback_code = parts[1] if len(parts) > 1 and parts[1] else None
+
         data_url = f"{self.state.epg_base_url}/EPG/jsp/gdhdpublic/Ver.2/common/data.jsp"
-        
-        vod_id = telecom_code_or_id
-        # 如果是电信编码 (包含字母等)，通过 vodIdByCode 转换为真实的内部 programId
-        if not telecom_code_or_id.isdigit():
-            self.logger.info("检测到 telecomCode 格式，正在转换内部 vodId...")
-            params_code = {
-                "Action": "vodIdByCode",
-                "foreignSN": telecom_code_or_id,
-                "contentType": "0"
+
+        def _resolve_one(target_id: str) -> Optional[str]:
+            vod_id = target_id
+            if not target_id.isdigit():
+                self.logger.info("检测到 telecomCode 格式，正在转换内部 vodId...")
+                params_code = {
+                    "Action": "vodIdByCode",
+                    "foreignSN": target_id,
+                    "contentType": "0"
+                }
+                try:
+                    res = self.state.session.get(data_url, params=params_code, headers=self.config.headers, timeout=10)
+                    res_data = self._parse_epg_json(res.text)
+                    ret_id = res_data.get("result", {}).get("id")
+                    if ret_id:
+                        vod_id = str(ret_id)
+                        self.logger.info("电信编码转换内部 ID 成功: %s -> %s", target_id, vod_id)
+                    else:
+                        self.logger.warning("转换内部 ID 失败，尝试直接使用原 ID 访问。")
+                except Exception as e:
+                    self.logger.error("调用 vodIdByCode 发生异常: %s", e)
+
+            # 1. 模拟业务鉴权流程 (Action=serviceAuth)
+            self.logger.info("正在发送点播鉴权请求 (Action=serviceAuth)...")
+            params_auth = {
+                "Action": "serviceAuth",
+                "progId": vod_id,
+                "contentType": "1"
             }
             try:
-                res = self.state.session.get(data_url, params=params_code, headers=self.config.headers, timeout=10)
+                res = self.state.session.get(data_url, params=params_auth, headers=self.config.headers, timeout=10)
                 res_data = self._parse_epg_json(res.text)
-                ret_id = res_data.get("result", {}).get("id")
-                if ret_id:
-                    vod_id = str(ret_id)
-                    self.logger.info("电信编码转换内部 ID 成功: %s -> %s", telecom_code_or_id, vod_id)
-                else:
-                    self.logger.warning("转换内部 ID 失败，尝试直接使用原 ID 访问。")
+                retcode = res_data.get("result", {}).get("retcode")
+                self.logger.info("点播服务鉴权返回状态码: %s", retcode)
             except Exception as e:
-                self.logger.error("调用 vodIdByCode 发生异常: %s", e)
+                self.logger.error("点播服务鉴权时发生异常: %s", e)
 
-        # 1. 模拟业务鉴权流程 (Action=serviceAuth)
-        self.logger.info("正在发送点播鉴权请求 (Action=serviceAuth)...")
-        params_auth = {
-            "Action": "serviceAuth",
-            "progId": vod_id,
-            "contentType": "1"
-        }
-        try:
-            res = self.state.session.get(data_url, params=params_auth, headers=self.config.headers, timeout=10)
-            res_data = self._parse_epg_json(res.text)
-            retcode = res_data.get("result", {}).get("retcode")
-            self.logger.info("点播服务鉴权返回状态码: %s", retcode)
-        except Exception as e:
-            self.logger.error("点播服务鉴权时发生异常: %s", e)
+            # 2. 模拟拉取节目详细信息与 RTSP 播放地址流程 (Action=vodInfoById)
+            self.logger.info("正在获取 VOD 媒体播放地址 (Action=vodInfoById)...")
+            result = self.get_vod_info(vod_id)
+            if result and "mediaUrl" in result:
+                return result["mediaUrl"]
+            return None
 
-        # 2. 模拟拉取节目详细信息与 RTSP 播放地址流程 (Action=vodInfoById)
-        self.logger.info("正在获取 VOD 媒体播放地址 (Action=vodInfoById)...")
-        result = self.get_vod_info(vod_id)
-        if result and "mediaUrl" in result:
+        # Try primary ID first
+        self.logger.info("========== 开始获取 VOD 播放地址: %s ==========", primary_id)
+        media_url = _resolve_one(primary_id)
+
+        # Fallback to telecom_code if primary fails
+        if not media_url and fallback_code:
+            self.logger.info("========== 主ID解析失败，尝试用 telecomCode 回退: %s ==========", fallback_code)
+            media_url = _resolve_one(fallback_code)
+
+        if media_url:
             self.logger.info("成功解析出点播 RTSP 播放地址!")
-            return result["mediaUrl"]
+            return media_url
         else:
-            self.logger.error("服务器响应结果中未包含有效的 mediaUrl，可能鉴权未通过或非免费节目。")
+            self.logger.error("所有解析路径均失败，未获取到有效的 mediaUrl。")
             return None
 
     def get_tvod_program_list(self, channel_id: str, date_str: Optional[str] = None) -> list:

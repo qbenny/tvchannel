@@ -36,10 +36,13 @@ class MemoryLogBuffer:
             log_time, log_level, log_msg = match.groups()
             self._add_log(log_time, log_level, log_msg)
         else:
-            # Check for keywords to elevate level
+            # Check for known log-level prefix (e.g. Uvicorn: "INFO: ...", "WARNING: ...")
             level = default_level
             lower_line = line.lower()
-            if "error" in lower_line or "failed" in lower_line or "exception" in lower_line:
+            level_match = re.match(r'^(INFO|WARNING|ERROR|DEBUG|CRITICAL):', line, re.IGNORECASE)
+            if level_match:
+                level = level_match.group(1).upper()
+            elif "error" in lower_line or "failed" in lower_line or "exception" in lower_line:
                 level = "ERROR"
             elif "warn" in lower_line:
                 level = "WARNING"
@@ -1215,6 +1218,7 @@ async def get_sim_status():
         "epg_base_url": sim.state.epg_base_url or None,
         "user_token": sim.state.user_token or None,
         "jsessionid": jsessionid,
+        "ip_address": sim.config.ip_address,
     }
 
 @app.post("/api/stb-config")
@@ -1389,4 +1393,4 @@ async def clear_api_logs():
 
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=8880)
+    uvicorn.run(app, host="0.0.0.0", port=8880, access_log=False)

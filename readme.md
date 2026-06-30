@@ -4,4 +4,4 @@ docker run -d \
   -v ./data:/app/data \
   --name iptv-toolkit \
   --restart unless-stopped \
-  ghcr.io/qbenny/iptv-toolkit:main
+  ghcr.io/qbenny/iptv-toolkit:latest

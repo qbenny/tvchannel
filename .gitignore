@@ -5,6 +5,8 @@ data/stb_config.json
 data/poster_cache.json
 data/vis_sections_cache.json
 data/vod_source_tree_cache.json
+data/vod_categories_default.json
+data/vod_categories.json
 sample/
 research_and_debug/
 scratch/

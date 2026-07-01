@@ -2,7 +2,6 @@
 STB 模拟器主类 - 包含登录、心跳、点播播放地址解析等功能。
 从 run_simulator.py 迁移。
 """
-import logging
 import random
 import re
 import time
@@ -14,6 +13,7 @@ import requests
 from src.auth.config import STBDeviceConfig
 from src.auth.state import STBRuntimeState
 from src.utils.helpers import parse_epg_json, get_iptv_local_ip
+from src.utils.logger import logger as _project_logger
 
 # Attempt to import Cryptodome for DES
 try:
@@ -29,7 +29,7 @@ class STBSimulator:
         self.config = config
         self.state = STBRuntimeState()
 
-        self.logger = logging.getLogger("STBSimulator")
+        self.logger = _project_logger
         self.logger.info("机顶盒网络模拟器已就绪。设备账号: %s", self.config.user_id)
 
     def _log_request(self, method: str, url: str, response: requests.Response):
@@ -252,6 +252,10 @@ class STBSimulator:
                 interval_match = re.search(r'NextCallInterval\s*=\s*(\d+)', res.text)
                 if interval_match:
                     server_interval = int(interval_match.group(1))
+                    # 限制最大间隔为 600 秒，防止 Session 过期
+                    if server_interval > 600:
+                        self.logger.warning("服务器下发间隔 %d 秒超过上限 600 秒，强制限制为 600 秒", server_interval)
+                        server_interval = 600
                     if server_interval > 0 and server_interval != self.state.heartbeat_interval:
                         self.logger.info("服务器下发推荐心跳间隔: %d 秒 (之前: %d 秒)", server_interval, self.state.heartbeat_interval)
                         self.state.heartbeat_interval = server_interval

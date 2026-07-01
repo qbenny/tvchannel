@@ -1,8 +1,9 @@
-"""
+""" 
 STB 设备配置类 - 保存开机即固定不变的硬件和环境参数。
 从 run_simulator.py 迁移。
 """
 from src.utils.helpers import get_iptv_local_ip
+from src.utils.logger import logger
 
 
 class STBDeviceConfig:
@@ -31,13 +32,13 @@ class STBDeviceConfig:
             self.real_ip_mode = True
             try:
                 ip_address = get_iptv_local_ip()
-                print(f">>> [IPTV IP] 真实 IP 模式，自动探测: {ip_address}")
+                logger.info("[IPTV IP] 真实 IP 模式，自动探测: %s", ip_address)
             except Exception as e:
-                print(f">>> [IPTV IP] 自动探测失败: {e}，使用占位 IP（登录时将重试）")
+                logger.error("[IPTV IP] 自动探测失败: %s，使用占位 IP（登录时将重试）", e)
                 ip_address = "0.0.0.0"
         else:
             self.real_ip_mode = False
-            print(f">>> [IPTV IP] 固定 IP 模式: {ip_address}")
+            logger.info("[IPTV IP] 固定 IP 模式: %s", ip_address)
         self.ip_address = ip_address
         self.base_url = base_url        # 初始网关地址
         self.des_key = des_key

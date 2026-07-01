@@ -80,3 +80,58 @@ def get_iptv_local_ip() -> str:
         "无法探测 IPTV 出网 IP：本地网卡未找到 10.x.x.x 网段，"
         f"且 {_IPTV_IP_DETECT_URL} 不可达"
     )
+
+
+def get_lan_ip() -> str:
+    """探测本机局域网 IP（非 IPTV 专网的私有 IP）。
+
+    优先返回非 10.x.x.x 网段的私有 IP（如 192.168.x.x），
+    找不到则回退到 10.x.x.x，再找不到返回 "localhost"。
+
+    Returns:
+        IP 地址字符串，不会抛出异常
+    """
+    all_ips = []
+    try:
+        if sys.platform.startswith("win"):
+            out = subprocess.check_output("ipconfig", shell=True).decode("gbk", errors="ignore")
+            all_ips = re.findall(r"IPv4 地址[.\s]*:\s*([0-9.]+)", out)
+            if not all_ips:
+                all_ips = re.findall(r"IPv4 Address[.\s]*:\s*([0-9.]+)", out)
+        else:
+            out = subprocess.check_output("ip addr", shell=True).decode("utf-8", errors="ignore")
+            all_ips = re.findall(r"inet\s+([0-9.]+)/", out)
+    except Exception:
+        pass
+
+    # 优先选择非 10.x 的私有 IP（192.168.x.x 等）
+    for ip in all_ips:
+        ip = ip.strip()
+        if ip and _is_private_ip(ip) and not ip.startswith("10."):
+            return ip
+
+    # 回退到 10.x.x.x
+    for ip in all_ips:
+        ip = ip.strip()
+        if ip and ip.startswith("10."):
+            return ip
+
+    return "localhost"
+
+
+def _is_private_ip(ip: str) -> bool:
+    """判断是否为私有 IP 地址。"""
+    parts = ip.split(".")
+    if len(parts) != 4:
+        return False
+    try:
+        a, b = int(parts[0]), int(parts[1])
+    except ValueError:
+        return False
+    if a == 10:
+        return True
+    if a == 172 and 16 <= b <= 31:
+        return True
+    if a == 192 and b == 168:
+        return True
+    return False

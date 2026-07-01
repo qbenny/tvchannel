@@ -14,6 +14,7 @@ from fastapi.staticfiles import StaticFiles
 import uvicorn
 
 from src.utils.logger import setup_logger, LOG_FILE, logger
+from src.utils.helpers import get_lan_ip
 from src.db.models import init_db
 from src.auth.config import STBDeviceConfig
 from src.auth.simulator import STBSimulator
@@ -159,8 +160,9 @@ async def custom_404_handler(request: Request, exc: Exception):
 
 if __name__ == "__main__":
     logger.info("========================================")
+    host_ip = get_lan_ip()
     logger.info("IPTV-Toolkit 启动中...")
-    logger.info("Web UI: http://localhost:8880/settings")
-    logger.info("TVBox API: http://localhost:8880/api/vod")
+    logger.info("Web UI: http://%s:8880/settings", host_ip)
+    logger.info("TVBox API: http://%s:8880/api/vod", host_ip)
     logger.info("========================================")
     uvicorn.run(app, host="0.0.0.0", port=8880, access_log=False)

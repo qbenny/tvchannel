@@ -1,8 +1,10 @@
-"""
+""" 
 数据库模型模块 - 表结构定义与初始化。
 """
 import os
 import sqlite3
+
+from src.utils.logger import logger
 
 DB_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "data", "iptv.db")
 
@@ -61,7 +63,7 @@ def init_db():
 
     conn.commit()
     conn.close()
-    print(">>> [DB] 数据库初始化完成")
+    logger.info("[DB] 数据库初始化完成")
 
 
 if __name__ == "__main__":

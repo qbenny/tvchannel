@@ -8,13 +8,26 @@ from typing import Optional
 from src.db.models import get_db_connection
 from src.utils.logger import logger
 
+# 地区归一化映射表
+_COUNTRY_NORMALIZE_MAP = {
+    "中国大陆": "内地",
+    "中国": "内地",
+    "香港": "中国香港",
+    "台湾": "中国台湾",
+}
 
-def bulk_upsert_items(items: list, type_name: str) -> int:
+def _normalize_country(country: str) -> str:
+    """将地区名称归一化为标准值。"""
+    return _COUNTRY_NORMALIZE_MAP.get(country, country)
+
+
+def bulk_upsert_items(items: list, type_name: str, sync_time: int) -> int:
     """批量插入或更新 vod_items 数据。
 
     Args:
         items: filter.json 返回的 resultSet 列表
         type_name: 内容大类名称（电视剧/电影/综艺/动漫/少儿）
+        sync_time: 本次同步的统一时间戳，用于后续清理旧数据
 
     Returns:
         成功 upsert 的条目数
@@ -22,7 +35,6 @@ def bulk_upsert_items(items: list, type_name: str) -> int:
     if not items:
         return 0
 
-    sync_time = int(time.time())
     count = 0
 
     conn = get_db_connection()
@@ -37,7 +49,7 @@ def bulk_upsert_items(items: list, type_name: str) -> int:
             title = item.get("title", "")
             content_type = item.get("contentType", "vod")
             year = item.get("year", "") or ""
-            country = item.get("country", "") or ""
+            country = _normalize_country(item.get("country", "") or "")
             actors = item.get("actors", "") or ""
             director = item.get("director", "") or ""
             score = item.get("score", 0) or 0
@@ -84,13 +96,24 @@ def bulk_upsert_items(items: list, type_name: str) -> int:
     return count
 
 
-def search_items(keyword: str, page: int = 1, page_size: int = 20) -> dict:
+def _get_order_by(sort: str) -> str:
+    """将 TVBox sort 参数映射为 SQL ORDER BY 子句。"""
+    sort_map = {
+        "score": "score DESC",
+        "time": "year DESC, score DESC",
+        "hits": "score DESC",  # 无热度数据，回退为评分
+    }
+    return sort_map.get(sort, "score DESC")
+
+
+def search_items(keyword: str, page: int = 1, page_size: int = 20, sort: str = "score") -> dict:
     """搜索 vod_items 数据。
 
     Args:
         keyword: 搜索关键词
         page: 页码（从 1 开始）
         page_size: 每页条数
+        sort: 排序方式（score/time/hits）
 
     Returns:
         {"list": [...], "total": int, "page": int, "pagecount": int}
@@ -109,12 +132,13 @@ def search_items(keyword: str, page: int = 1, page_size: int = 20) -> dict:
 
     # 分页查询
     offset = (page - 1) * page_size
-    c.execute("""
-        SELECT contentCode, title, type, contentType, year, country,
+    order_clause = _get_order_by(sort)
+    c.execute(f"""
+        SELECT contentCode, title, type, contentBaseType, year, country,
                actors, director, score, icon, poster, isFinished, episodeTotal
         FROM vod_items
         WHERE title LIKE ? OR actors LIKE ? OR director LIKE ?
-        ORDER BY score DESC
+        ORDER BY {order_clause}
         LIMIT ? OFFSET ?
     """, (like_kw, like_kw, like_kw, page_size, offset))
     rows = c.fetchall()
@@ -122,12 +146,12 @@ def search_items(keyword: str, page: int = 1, page_size: int = 20) -> dict:
 
     result_list = []
     for row in rows:
-        item_type = row["contentType"] or "vod"
+        item_type = "vod" if row["contentBaseType"] == "001" else "series"
         result_list.append({
             "vod_id": f"{item_type}_{row['contentCode']}",
             "vod_name": row["title"],
             "vod_pic": row["icon"] or row["poster"] or "",
-            "vod_remarks": "电影" if item_type == "vod" else "电视剧"
+            "vod_remarks": row["type"] or "",
         })
 
     pagecount = max(1, (total + page_size - 1) // page_size)
@@ -140,7 +164,7 @@ def search_items(keyword: str, page: int = 1, page_size: int = 20) -> dict:
     }
 
 
-def filter_items(content_type: str, filters: dict = None, page: int = 1, page_size: int = 20) -> dict:
+def filter_items(content_type: str, filters: dict = None, page: int = 1, page_size: int = 20, sort: str = "score") -> dict:
     """按条件和过滤参数查询 vod_items。
 
     Args:
@@ -158,7 +182,8 @@ def filter_items(content_type: str, filters: dict = None, page: int = 1, page_si
         "series": "电视剧",
         "variety": "综艺",
         "anime": "动漫",
-        "kids": "少儿"
+        "kids": "少儿",
+        "documentary": "纪录",
     }
     db_type = type_map.get(content_type, content_type)
 
@@ -184,16 +209,21 @@ def filter_items(content_type: str, filters: dict = None, page: int = 1, page_si
             sql += " AND year = ?"
             params.append(year_val)
 
+    if filters.get("isfinished"):
+        sql += " AND isFinished = ?"
+        params.append(int(filters["isfinished"]))
+
     # Count
     c.execute(sql, params)
     total = c.fetchone()[0]
 
     # Query with sorting
     data_sql = sql.replace("SELECT COUNT(*)", """
-        SELECT contentCode, title, type, contentType, year, country,
+        SELECT contentCode, title, type, contentBaseType, year, country,
                actors, director, score, icon, poster, isFinished, episodeTotal
     """)
-    data_sql += " ORDER BY score DESC LIMIT ? OFFSET ?"
+    order_clause = _get_order_by(sort)
+    data_sql += f" ORDER BY {order_clause} LIMIT ? OFFSET ?"
     data_params = params + [page_size, (page - 1) * page_size]
 
     c.execute(data_sql, data_params)
@@ -202,12 +232,12 @@ def filter_items(content_type: str, filters: dict = None, page: int = 1, page_si
 
     result_list = []
     for row in rows:
-        item_type = row["contentType"] or "vod"
+        item_type = "vod" if row["contentBaseType"] == "001" else "series"
         result_list.append({
             "vod_id": f"{item_type}_{row['contentCode']}",
             "vod_name": row["title"],
             "vod_pic": row["icon"] or row["poster"] or "",
-            "vod_remarks": "电影" if item_type == "vod" else "电视剧"
+            "vod_remarks": row["type"] or "",
         })
 
     pagecount = max(1, (total + page_size - 1) // page_size)
@@ -338,7 +368,7 @@ if __name__ == "__main__":
             "score": 9.0
         }
     ]
-    count = bulk_upsert_items(test_items, "电影")
+    count = bulk_upsert_items(test_items, "电影", int(time.time()))
     print(f">>> 插入测试数据 {count} 条")
 
     # 测试 stats

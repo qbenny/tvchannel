@@ -36,3 +36,4 @@ IPTV-Toolkit/
 - 新增目录需要关注：如果不应打入镜像，记得同步更新 `.dockerignore`
 - 数据库路径：`data/iptv.db`，通过 Docker volume 挂载
 - 日志文件：`data/iptv_toolkit.log`
+- 程序代码不要直接改，先给修改方案

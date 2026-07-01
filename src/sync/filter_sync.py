@@ -17,6 +17,38 @@ VIS_HEADERS = {
     "Connection": "keep-alive",
 }
 
+# 请求重试配置
+_MAX_RETRIES = 3
+_RETRY_DELAY_BASE = 3  # 秒，指数退避基数
+
+
+def _fetch_with_retry(url: str, params: dict, timeout: int = 15) -> requests.Response:
+    """带指数退避重试的 GET 请求。
+
+    Args:
+        url: 请求地址
+        params: 查询参数
+        timeout: 单次超时秒数
+
+    Returns:
+        requests.Response
+
+    Raises:
+        requests.RequestException: 重试耗尽后抛出最后一次异常
+    """
+    last_exc = None
+    for attempt in range(_MAX_RETRIES):
+        try:
+            return requests.get(url, params=params, headers=VIS_HEADERS, timeout=timeout)
+        except requests.RequestException as e:
+            last_exc = e
+            if attempt < _MAX_RETRIES - 1:
+                delay = _RETRY_DELAY_BASE * (2 ** attempt)
+                logger.warning("[Sync] 请求失败 (尝试 %d/%d)，%d 秒后重试: %s",
+                               attempt + 1, _MAX_RETRIES, delay, e)
+                time.sleep(delay)
+    raise last_exc
+
 # 同步状态（供 Web UI 查询）
 sync_status = {
     "running": False,
@@ -37,14 +69,14 @@ def _set_sync_status(**kwargs):
         sync_status[k] = v
 
 
-def sync_filter_data(simulator, type_name: str, orderby: int = 2, max_pages: int = None) -> int:
-    """分页拉取 filter.json 数据并写入数据库。
+def sync_filter_data(simulator, type_name: str, sync_time: int, orderby: int = 2) -> int:
+    """单次请求拉取 filter.json 全量数据并写入数据库。
 
     Args:
         simulator: STBSimulator 实例（需已登录）
         type_name: 内容类型名称（电视剧/电影/综艺/动漫/少儿）
+        sync_time: 本次同步的统一时间戳，由 full_sync 统一传入
         orderby: 排序方式（2=评分降序）
-        max_pages: 最大拉取页数（None=全部）
 
     Returns:
         成功同步的条目数
@@ -54,61 +86,45 @@ def sync_filter_data(simulator, type_name: str, orderby: int = 2, max_pages: int
         logger.error("[Sync] VIS 服务器地址未解析，跳过同步 %s", type_name)
         return 0
 
-    page = 0
-    size = 50
-    sync_time = int(time.time())
-    total_synced = 0
+    logger.info("[Sync] 开始同步 %s (sync_time=%d)", type_name, sync_time)
 
-    while True:
-        params = {
-            "type": type_name,
-            "size": size,
-            "pageindex": page,
-            "orderby": orderby,
-            "userId": simulator.config.user_id,
-        }
+    params = {
+        "type": type_name,
+        "size": 50000,  # 一次拉取全量，API 分页已废弃
+        "pageindex": 0,
+        "orderby": orderby,
+        "userId": simulator.config.user_id,
+    }
 
-        try:
-            url = f"{vis_domain}api/search/filter.json"
-            res = requests.get(url, params=params, headers=VIS_HEADERS, timeout=15)
-            if res.status_code != 200:
-                logger.warning("[Sync] 同步 %s 第 %d 页失败: HTTP %d", type_name, page + 1, res.status_code)
-                break
+    try:
+        url = f"{vis_domain}api/search/filter.json"
+        res = _fetch_with_retry(url, params)
+        if res.status_code != 200:
+            logger.warning("[Sync] 同步 %s 失败: HTTP %d", type_name, res.status_code)
+            return 0
 
-            data = res.json()
-            items = data.get("resultSet", [])
-            if not items:
-                break
+        data = res.json()
+        items = data.get("resultSet", [])
+        if not items:
+            logger.warning("[Sync] %s 返回空数据", type_name)
+            return 0
 
-            # 写入数据库
-            count = bulk_upsert_items(items, type_name)
-            total_synced += count
-            logger.info("[Sync] %s: 第 %d 页，写入 %d 条", type_name, page + 1, count)
+        count = bulk_upsert_items(items, type_name, sync_time)
+        logger.info("[Sync] %s: 写入 %d 条", type_name, count)
 
-            # 更新进度
-            _set_sync_status(
-                progress=f"{type_name} 第 {page + 1} 页 ({total_synced} 条)",
-                current_type=type_name,
-                done=total_synced,
-            )
+        _set_sync_status(
+            progress=f"{type_name} ({count} 条)",
+            current_type=type_name,
+            done=count,
+        )
 
-            # 检查是否还有下一页
-            page_info = data.get("pageInfo", {})
-            if max_pages and page + 1 >= max_pages:
-                break
-            if page + 1 >= page_info.get("pageCount", 0):
-                break
+    except Exception as e:
+        logger.error("[Sync] 同步 %s 异常: %s", type_name, e)
+        _set_sync_status(last_error=str(e))
+        return 0
 
-            page += 1
-            time.sleep(1)  # 避免请求过快
-
-        except Exception as e:
-            logger.error("[Sync] 同步 %s 异常: %s", type_name, e)
-            _set_sync_status(last_error=str(e))
-            break
-
-    logger.info(">>> [Sync] %s 同步完成，共 %d 条", type_name, total_synced)
-    return total_synced
+    logger.info(">>> [Sync] %s 同步完成，共 %d 条", type_name, count)
+    return count
 
 
 def full_sync(simulator) -> dict:
@@ -120,7 +136,10 @@ def full_sync(simulator) -> dict:
     Returns:
         {"type_name": count, ...}
     """
-    types = ["电视剧", "电影", "综艺", "动漫", "少儿"]
+    # VIS API 支持的类型（可根据需要增删）：
+    #  电影(001)  电视剧(002)  新闻(003)  少儿(004)  综艺(005)  纪录(007)  戏曲(016)  动漫(type113)
+    types = ["电视剧", "电影", "综艺", "动漫", "少儿", "纪录"]
+    # 未启用的类型（有数据，按需加入上方列表即可）："新闻", "戏曲"
     sync_time = int(time.time())
 
     _set_sync_status(
@@ -134,9 +153,9 @@ def full_sync(simulator) -> dict:
     )
 
     results = {}
-    for i, t in enumerate(types):
+    for t in types:
         _set_sync_status(current_type=t)
-        count = sync_filter_data(simulator, t)
+        count = sync_filter_data(simulator, t, sync_time)
         results[t] = count
 
     # 所有类型同步完成后，清理过期数据

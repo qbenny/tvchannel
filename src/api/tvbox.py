@@ -30,84 +30,108 @@ def get_simulator():
 # 过滤器配置（硬编码）
 # ==========================================
 
-FILTER_CONFIG = {
-    "movies": [
-        {
-            "key": "country",
-            "name": "地区",
-            "value": [
-                {"n": "全部", "v": ""},
-                {"n": "美国", "v": "美国"},
-                {"n": "内地", "v": "内地"},
-                {"n": "日本", "v": "日本"},
-                {"n": "韩国", "v": "韩国"},
-                {"n": "英国", "v": "英国"},
-                {"n": "其他", "v": "其他"}
-            ]
-        },
-        {
-            "key": "year",
-            "name": "年份",
-            "value": [
-                {"n": "全部", "v": ""},
-                {"n": "2024", "v": "2024"},
-                {"n": "2023", "v": "2023"},
-                {"n": "2020-2029", "v": "2020-2029"},
-                {"n": "2010-2019", "v": "2010-2019"},
-                {"n": "2000-2009", "v": "2000-2009"},
-                {"n": "更早", "v": "1900-1999"}
-            ]
-        }
-    ],
-    "series": [
-        {
-            "key": "country",
-            "name": "地区",
-            "value": [
-                {"n": "全部", "v": ""},
-                {"n": "美国", "v": "美国"},
-                {"n": "内地", "v": "内地"},
-                {"n": "日本", "v": "日本"},
-                {"n": "韩国", "v": "韩国"},
-                {"n": "英国", "v": "英国"},
-                {"n": "其他", "v": "其他"}
-            ]
-        },
-        {
-            "key": "year",
-            "name": "年份",
-            "value": [
-                {"n": "全部", "v": ""},
-                {"n": "2024", "v": "2024"},
-                {"n": "2023", "v": "2023"},
-                {"n": "2020-2029", "v": "2020-2029"},
-                {"n": "2010-2019", "v": "2010-2019"},
-                {"n": "2000-2009", "v": "2000-2009"},
-                {"n": "更早", "v": "1900-1999"}
-            ]
-        }
+# 区域和年份过滤器模板
+_COUNTRY_FILTER = {
+    "key": "country",
+    "name": "地区",
+    "value": [
+        {"n": "全部", "v": ""},
+        {"n": "内地", "v": "内地"},
+        {"n": "中国香港", "v": "中国香港"},
+        {"n": "中国台湾", "v": "中国台湾"},
+        {"n": "美国", "v": "美国"},
+        {"n": "日本", "v": "日本"},
+        {"n": "韩国", "v": "韩国"},
+        {"n": "英国", "v": "英国"},
+        {"n": "其他", "v": "其他"}
     ]
+}
+
+_YEAR_FILTER = {
+    "key": "year",
+    "name": "年份",
+    "value": [
+        {"n": "全部", "v": ""},
+        {"n": "2026", "v": "2026"},
+        {"n": "2025", "v": "2025"},
+        {"n": "2024", "v": "2024"},
+        {"n": "2023", "v": "2023"},
+        {"n": "2020-2029", "v": "2020-2029"},
+        {"n": "2010-2019", "v": "2010-2019"},
+        {"n": "2000-2009", "v": "2000-2009"},
+        {"n": "更早", "v": "1900-1999"}
+    ]
+}
+
+_IS_FINISHED_FILTER = {
+    "key": "isfinished",
+    "name": "状态",
+    "value": [
+        {"n": "全部", "v": ""},
+        {"n": "更新中", "v": "0"},
+        {"n": "已完结", "v": "1"},
+    ]
+}
+
+FILTER_CONFIG = {
+    "movies":      [_COUNTRY_FILTER, _YEAR_FILTER],
+    "series":      [_COUNTRY_FILTER, _YEAR_FILTER, _IS_FINISHED_FILTER],
+    "variety":     [_COUNTRY_FILTER, _YEAR_FILTER, _IS_FINISHED_FILTER],
+    "anime":       [_COUNTRY_FILTER, _YEAR_FILTER, _IS_FINISHED_FILTER],
+    "kids":        [_COUNTRY_FILTER, _YEAR_FILTER],
+    "documentary": [_COUNTRY_FILTER, _YEAR_FILTER],
 }
 
 
 def _parse_f_param(f_param: str) -> dict:
-    """解析 TVBox 的 f 参数（Base64 或 JSON）。"""
+    """解析 TVBox 的 f 参数。
+    
+    TVBox 的 f 参数格式通常为：
+        - Base64 编码的 JSON 字符串: {"country": "内地"}
+        - 或原始 JSON 字典: {"key": "value"}
+        - 或 JSON 数组: [{"key":"country","value":"内地"}]
+    """
     if not f_param:
         return {}
-    try:
-        # 尝试 Base64 解码
-        padded = f_param + "=" * ((4 - len(f_param) % 4) % 4)
-        decoded_str = base64.b64decode(padded).decode("utf-8")
-        f_json = json.loads(decoded_str)
-    except Exception:
-        # 尝试原始 JSON
+    
+    logger.info("[TVBox] Raw 'f' param: %s", f_param[:200])
+    
+    def _try_parse(raw: str) -> dict:
+        """尝试解析一段 JSON 文本，统一转为扁平 dict。"""
         try:
-            f_json = json.loads(f_param)
+            obj = json.loads(raw)
         except Exception:
             return {}
-    if isinstance(f_json, dict):
-        logger.info("[TVBox] Parsed filters from 'f': %s", f_json)
-        return f_json
+        # 数组格式: [{key, value}, ...] → {key: value, ...}
+        if isinstance(obj, list):
+            result = {}
+            for item in obj:
+                if isinstance(item, dict) and "key" in item and "value" in item:
+                    result[item["key"]] = item["value"]
+            return result
+        # 字典格式: {"key": "value"} → 直接使用
+        if isinstance(obj, dict):
+            return obj
+        return {}
+
+    # 1) 尝试 Base64 解码
+    try:
+        padded = f_param + "=" * ((4 - len(f_param) % 4) % 4)
+        decoded_str = base64.b64decode(padded).decode("utf-8")
+        result = _try_parse(decoded_str)
+        if result:
+            logger.info("[TVBox] Parsed filters (base64→dict): %s", result)
+            return result
+    except Exception:
+        pass
+
+    # 2) 尝试原始 JSON
+    result = _try_parse(f_param)
+    if result:
+        logger.info("[TVBox] Parsed filters (raw→dict): %s", result)
+        return result
+
+    logger.info("[TVBox] Could not parse 'f' param, returning empty filters")
     return {}
 
 
@@ -149,12 +173,13 @@ async def handle_tvbox_request(request: Request) -> JSONResponse:
     ac = request.query_params.get("ac", "")
     t = request.query_params.get("t", "")
     pg = request.query_params.get("pg", "1")
+    sort = request.query_params.get("sort", "score")
     wd = request.query_params.get("wd", "")
     ids = request.query_params.get("ids", "")
     f_param = request.query_params.get("f", "")
 
     page = int(pg) if pg.isdigit() else 1
-    logger.info("[TVBox] ac=%s, t=%s, pg=%s, wd=%s, ids=%s", ac, t, pg, wd, ids)
+    logger.info("[TVBox] ac=%s, t=%s, pg=%s, sort=%s, wd=%s, ids=%s, f=%s", ac, t, pg, sort, wd, ids, f_param[:100] if f_param else "")
 
     sim = get_simulator()
 
@@ -164,13 +189,13 @@ async def handle_tvbox_request(request: Request) -> JSONResponse:
 
     # ---------- 场景 2: 搜索 ----------
     if wd:
-        result = search_items(wd, page)
+        result = search_items(wd, page, sort=sort)
         return JSONResponse(content={"code": 1, **result})
 
     # ---------- 场景 3: 分类列表 ----------
     if t:
         filters = _parse_f_param(f_param)
-        result = filter_items(t, filters, page)
+        result = filter_items(t, filters, page, sort=sort)
         result["filters"] = {t: FILTER_CONFIG.get(t, [])}
         return JSONResponse(content={"code": 1, **result})
 
@@ -179,7 +204,11 @@ async def handle_tvbox_request(request: Request) -> JSONResponse:
     vis_filters = {}
 
     for cat_id, cat_filters in FILTER_CONFIG.items():
-        name_map = {"movies": "电影专区", "series": "电视剧场", "anime": "动漫世界"}
+        name_map = {
+            "movies": "电影专区", "series": "电视剧场",
+            "variety": "综艺荟萃", "anime": "动漫世界", "kids": "少儿天地",
+            "documentary": "纪录大观"
+        }
         vis_categories.append({"type_id": cat_id, "type_name": name_map.get(cat_id, cat_id)})
         vis_filters[cat_id] = cat_filters
 
